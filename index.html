@@ -1,0 +1,2642 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SNSモンスターズ｜SNSアカウントをポケモン風キャラ化してバトル！</title>
+  <meta name="description" content="X（旧Twitter）やInstagramの投稿履歴から、あなたをポケモン風の親しみやすいモンスターに召喚！必殺技を繰り出して友達や有名人アカウントと対戦できるSNSアカウントバトル＆図鑑サイト。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800;900&family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070a12;
+      --card-bg: #121829;
+      --gold: #ffd166;
+      --fire: #ff3b5c;
+      --water: #00d2ff;
+      --mint: #00f5a0;
+      --purple: #a855f7;
+      --text: #ffffff;
+      --muted: #8e9bb0;
+      --theme-color: #ff3b5c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 50% 0%, rgba(255, 209, 102, 0.18) 0%, transparent 50%),
+        radial-gradient(circle at 15% 85%, rgba(0, 210, 255, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(255, 59, 92, 0.12) 0%, transparent 45%);
+      color: var(--text);
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      padding-bottom: 68px;
+      overflow-x: hidden;
+    }
+
+    .app-shell {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 10px 12px 32px;
+    }
+
+    /* 1. ゲーム風トップヘッダー */
+    .top-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .game-logo {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 1.28rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .game-logo span {
+      background: linear-gradient(135deg, #ffd166 0%, #ff3b5c 55%, #00d2ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .gacha-btn-top {
+      background: linear-gradient(135deg, #a855f7 0%, #ff3b5c 100%);
+      border: 1.5px solid #ffd166;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 5px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 3px 12px rgba(168, 85, 247, 0.45);
+    }
+
+    /* 2. メイン3タブナビゲーション（召喚カード / 対戦バトル / モンスター図鑑） */
+    .main-nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      background: #0d121f;
+      padding: 4px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      margin-bottom: 12px;
+    }
+
+    .nav-tab {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 900;
+      padding: 9px 4px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .nav-tab.active {
+      background: linear-gradient(135deg, #ffd166 0%, #ff9f1c 100%);
+      color: #070a12;
+      box-shadow: 0 4px 12px rgba(255, 209, 102, 0.35);
+    }
+
+    .tab-pane { display: none; }
+    .tab-pane.active {
+      display: block;
+      animation: popIn 0.25s ease;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 検索＆召喚ドック */
+    .summon-dock {
+      background: rgba(18, 24, 41, 0.92);
+      border: 1.5px solid rgba(255, 255, 255, 0.14);
+      border-radius: 18px;
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+
+    .search-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #070a12;
+      border: 1.5px solid rgba(255, 209, 102, 0.4);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 8px;
+    }
+
+    .sns-switch {
+      display: flex;
+      background: #151d30;
+      border-radius: 8px;
+      padding: 2px;
+    }
+
+    .sns-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 900;
+      padding: 5px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .sns-btn.active {
+      background: #fff;
+      color: #070a12;
+    }
+
+    .id-input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 0.92rem;
+      font-weight: 900;
+      padding: 7px 4px;
+      outline: none;
+    }
+
+    .id-input::placeholder,
+    .opp-input::placeholder {
+      color: rgba(255, 255, 255, 0.36);
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    .at-prefix-badge {
+      background: rgba(255, 209, 102, 0.15);
+      color: var(--gold);
+      font-weight: 900;
+      font-size: 0.85rem;
+      padding: 5px 8px;
+      border-radius: 8px;
+      margin-left: 2px;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .input-clear-btn {
+      display: none;
+      background: rgba(255, 255, 255, 0.16);
+      color: #cbd5e1;
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      font-size: 0.72rem;
+      font-weight: 900;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .input-clear-btn.visible {
+      display: inline-flex;
+    }
+
+    .moves-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      font-weight: 900;
+      color: var(--gold);
+      margin-bottom: 5px;
+      padding: 0 2px;
+    }
+
+    .move-type-badge {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 5px;
+      background: rgba(255, 209, 102, 0.2);
+      color: var(--gold);
+      border: 1px solid rgba(255, 209, 102, 0.45);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .move-type-badge.ult {
+      background: rgba(255, 59, 92, 0.25);
+      color: #ff8fa3;
+      border-color: rgba(255, 59, 92, 0.55);
+    }
+
+    .move-dmg-pill {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 3px;
+      background: rgba(255, 255, 255, 0.07);
+      padding: 2px 8px;
+      border-radius: 7px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .move-dmg-label {
+      font-size: 0.62rem;
+      font-weight: 900;
+      color: #94a3b8;
+    }
+
+    .summon-btn {
+      background: linear-gradient(135deg, #ff3b5c 0%, #ff9f1c 100%);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 8px 14px;
+      font-weight: 900;
+      font-size: 0.84rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .preset-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .preset-scroll::-webkit-scrollbar { display: none; }
+
+    .char-pill {
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid transparent;
+      color: #dbe4f0;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.73rem;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .char-pill.active {
+      background: rgba(255, 209, 102, 0.2);
+      border-color: var(--gold);
+      color: #fff;
+    }
+
+    /* ローディング（モンスター召喚演出） */
+    .loader-box {
+      display: none;
+      text-align: center;
+      padding: 28px 14px;
+      background: var(--card-bg);
+      border: 2px solid var(--gold);
+      border-radius: 22px;
+      margin-bottom: 12px;
+    }
+    .loader-box.active { display: block; }
+
+    .pokeball-spin {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      border-top-color: var(--fire);
+      animation: spin 0.6s linear infinite;
+      margin: 0 auto 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ==========================================================
+       🎴 ポケポケ風・本格ホログラムモンスターカード（Tab 1）
+       ========================================================== */
+    .tcg-card-outer {
+      background: linear-gradient(135deg, #ffe066 0%, #ff9f1c 25%, #ff3b5c 50%, #00d2ff 75%, #ffe066 100%);
+      padding: 7px;
+      border-radius: 26px;
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.8),
+        0 0 35px rgba(255, 209, 102, 0.3);
+      position: relative;
+    }
+
+    .tcg-card-inner {
+      background: linear-gradient(170deg, #192236 0%, #0b101d 100%);
+      border-radius: 20px;
+      padding: 13px 13px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* カード最上部：レア度・モンスター名・HP・属性 */
+    .tcg-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .tcg-name-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tcg-rarity-pill {
+      background: linear-gradient(90deg, #ff3b5c, #ffb800);
+      color: #070a12;
+      font-size: 0.66rem;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+
+    .tcg-species-name {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 1.22rem;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .tcg-hp-group {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .tcg-hp-label {
+      font-size: 0.7rem;
+      font-weight: 900;
+      color: var(--gold);
+    }
+
+    .tcg-hp-val {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    /* 🖼️ モンスターイラスト窓（キラキラホログラム演出＋トレーナーバッジ） */
+    .tcg-art-frame {
+      position: relative;
+      width: 100%;
+      height: 235px;
+      border-radius: 14px;
+      border: 3px solid rgba(255, 209, 102, 0.75);
+      overflow: hidden;
+      background: #070a12;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.7);
+      margin-bottom: 8px;
+    }
+
+    .tcg-monster-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ホログラム光の反射エフェクト */
+    .holo-sheen {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.22) 48%, rgba(0,245,160,0.18) 52%, transparent 70%);
+      background-size: 250% 250%;
+      animation: sheenMove 4.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes sheenMove {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* イラスト内の属性バッジ（右上）＆トレーナー枠（左下） */
+    .art-element-pill {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(7, 10, 18, 0.85);
+      border: 1.5px solid var(--gold);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 900;
+      padding: 3px 9px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+    }
+
+    .art-trainer-badge {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      right: 8px;
+      background: rgba(7, 10, 18, 0.86);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 11px;
+      padding: 5px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(6px);
+    }
+
+    .trainer-left {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .trainer-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1.5px solid var(--gold);
+      object-fit: cover;
+    }
+
+    .trainer-name {
+      font-size: 0.76rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.15;
+    }
+
+    .trainer-id {
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    /* 分類＆有吉流二つ名リボン */
+    .tcg-class-ribbon {
+      background: linear-gradient(90deg, rgba(255,209,102,0.18), rgba(255,59,92,0.18));
+      border: 1px solid rgba(255,209,102,0.45);
+      border-radius: 9px;
+      padding: 5px 8px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .tcg-adana-main {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--gold);
+    }
+
+    .tcg-adana-sub {
+      font-size: 0.68rem;
+      color: #e2e8f0;
+      font-weight: 700;
+    }
+
+    /* ⚡ ポケカ風「わざ（2つ）」セクション */
+    .tcg-moves-box {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+
+    .tcg-move-item {
+      background: rgba(7, 10, 18, 0.72);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 11px;
+      padding: 8px 10px;
+    }
+
+    .move-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .move-title {
+      font-size: 0.84rem;
+      font-weight: 900;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .move-dmg {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--gold);
+    }
+
+    .move-desc {
+      font-size: 0.7rem;
+      color: #cbd5e1;
+      font-weight: 700;
+    }
+
+    /* 🧠 ミニ脳内比率バー（1行でスッキリ！） */
+    .mini-brain-strip {
+      background: rgba(7, 10, 18, 0.65);
+      border-radius: 10px;
+      padding: 7px 9px;
+      margin-bottom: 8px;
+    }
+
+    .mini-brain-bar {
+      display: flex;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 4px 0 5px;
+    }
+
+    .mini-brain-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 0.68rem;
+      font-weight: 900;
+    }
+
+    /* 弱点・好物＆図鑑解説フッター */
+    .tcg-bottom-specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .spec-pill {
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 5px 7px;
+      font-size: 0.68rem;
+      font-weight: 900;
+    }
+
+    .pokedex-flavor {
+      background: rgba(255, 209, 102, 0.08);
+      border-left: 3px solid var(--gold);
+      border-radius: 7px;
+      padding: 6px 8px;
+      font-size: 0.72rem;
+      color: #e2e8f0;
+      font-weight: 700;
+      line-height: 1.38;
+    }
+
+    /* カード下アクションボタン */
+    .card-actions {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-go-battle {
+      background: linear-gradient(135deg, #ff3b5c 0%, #ff9f1c 100%);
+      color: #fff;
+      border: 2px solid #ffe066;
+      border-radius: 16px;
+      padding: 14px;
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(255, 59, 92, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .share-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-share-card {
+      background: linear-gradient(135deg, #00f5a0 0%, #00d2ff 100%);
+      color: #070a12;
+      border: none;
+      border-radius: 13px;
+      padding: 12px 8px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .btn-post-x {
+      background: #000;
+      border: 1.5px solid #fff;
+      color: #fff;
+      border-radius: 13px;
+      padding: 12px 8px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 900;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ==========================================================
+       ⚔️ アカウント対戦バトルアリーナ（Tab 2）
+       ========================================================== */
+    .arena-stage {
+      background: linear-gradient(180deg, #161f38 0%, #090d18 100%);
+      border: 2px solid var(--gold);
+      border-radius: 22px;
+      padding: 12px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.75);
+    }
+
+    .opponent-picker {
+      background: #070a12;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 14px;
+      padding: 9px;
+      margin-bottom: 10px;
+    }
+
+    .opp-input-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .opp-input {
+      flex: 1;
+      background: #121829;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 9px;
+      padding: 7px 10px;
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 800;
+      outline: none;
+    }
+
+    .opp-summon-btn {
+      background: var(--water);
+      color: #070a12;
+      border: none;
+      border-radius: 9px;
+      padding: 7px 12px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    /* VSフィールド（1P vs 2P） */
+    .battle-field {
+      display: grid;
+      grid-template-columns: 1fr 34px 1fr;
+      align-items: center;
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .fighter-pod {
+      background: rgba(7, 10, 18, 0.8);
+      border: 1.5px solid rgba(255,255,255,0.18);
+      border-radius: 16px;
+      padding: 8px;
+      text-align: center;
+      position: relative;
+      transition: transform 0.18s;
+    }
+
+    .fighter-pod.hit-shake {
+      animation: shake 0.35s ease;
+      border-color: var(--fire);
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px) rotate(-2deg); }
+      75% { transform: translateX(8px) rotate(2deg); }
+    }
+
+    .f-monster-img {
+      width: 100%;
+      height: 118px;
+      object-fit: cover;
+      border-radius: 11px;
+      border: 2px solid var(--gold);
+      margin-bottom: 5px;
+    }
+
+    .f-name {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 0.86rem;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .f-trainer {
+      font-size: 0.66rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .hp-bar-outer {
+      height: 10px;
+      background: #1e293b;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 3px;
+    }
+
+    .hp-bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #00f5a0, #00d2ff);
+      width: 100%;
+      transition: width 0.4s ease, background 0.3s;
+    }
+
+    .hp-text {
+      font-size: 0.68rem;
+      font-weight: 900;
+      color: var(--mint);
+    }
+
+    .vs-center-badge {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--gold);
+      text-align: center;
+    }
+
+    /* ポケモン風コマンド＆実況ウィンドウ */
+    .battle-log-window {
+      background: #06080f;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 13px;
+      padding: 10px 12px;
+      min-height: 74px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      line-height: 1.45;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .cmd-buttons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .cmd-btn {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1.5px solid var(--gold);
+      color: #fff;
+      border-radius: 12px;
+      padding: 10px 8px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 900;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .cmd-btn.ult {
+      background: linear-gradient(135deg, rgba(255,59,92,0.28), rgba(255,159,28,0.28));
+      border-color: var(--fire);
+    }
+
+    .cmd-btn-auto {
+      grid-column: span 2;
+      background: linear-gradient(135deg, #ffd166 0%, #ff9f1c 100%);
+      color: #070a12;
+      border: none;
+      border-radius: 12px;
+      padding: 11px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 900;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .battle-win-banner {
+      display: none;
+      margin-top: 10px;
+      background: linear-gradient(135deg, rgba(0,245,160,0.16), rgba(255,209,102,0.16));
+      border: 2px solid var(--mint);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+    .battle-win-banner.active { display: block; }
+
+    /* ==========================================================
+       📖 全8種モンスター図鑑（Tab 3）
+       ========================================================== */
+    .dex-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .dex-card {
+      background: var(--card-bg);
+      border: 1.5px solid rgba(255,255,255,0.14);
+      border-radius: 16px;
+      padding: 9px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .dex-card:active { transform: scale(0.97); }
+
+    .dex-img {
+      width: 100%;
+      height: 115px;
+      object-fit: cover;
+      border-radius: 11px;
+      border: 1.5px solid var(--gold);
+      margin-bottom: 6px;
+      transition: filter 0.4s ease;
+    }
+
+    /* 🔒 未発見シークレットモンスターの黒シルエット＆鍵ロック演出 */
+    .dex-card.locked-secret {
+      position: relative;
+      background: linear-gradient(145deg, #0b0e1a, #171226);
+      border: 1.5px dashed rgba(255, 209, 102, 0.45);
+      overflow: hidden;
+    }
+
+    .dex-card.locked-secret .dex-img {
+      filter: brightness(0) contrast(200%) drop-shadow(0 0 8px rgba(168, 85, 247, 0.75));
+      opacity: 0.78;
+      border-color: rgba(168, 85, 247, 0.5);
+    }
+
+    .secret-lock-badge {
+      position: absolute;
+      top: 42px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(7, 10, 18, 0.92);
+      border: 1.5px solid var(--gold);
+      color: var(--gold);
+      font-size: 0.7rem;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.8);
+      pointer-events: none;
+    }
+
+    /* 👑 OMEGA / MYTHIC / GOD / LR 専用の特別カード外枠エフェクト */
+    .tcg-card-outer.tier-OMEGA {
+      background: linear-gradient(135deg, #ff007f, #ffd166, #00f5a0, #00d2ff, #a855f7, #ff007f);
+      background-size: 300% 300%;
+      animation: sheenMove 2.5s linear infinite;
+      box-shadow: 0 0 38px rgba(255, 0, 127, 0.65), 0 0 18px rgba(255, 209, 102, 0.8);
+    }
+
+    .tcg-card-outer.tier-MYTHIC,
+    .tcg-card-outer.tier-GOD {
+      background: linear-gradient(135deg, #ffd166, #a855f7, #ff3b5c, #ffd166);
+      box-shadow: 0 0 30px rgba(255, 209, 102, 0.55);
+    }
+
+    /* 🎉 シークレット解放バナー */
+    .secret-unlock-toast {
+      display: none;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, rgba(255,0,127,0.25), rgba(255,209,102,0.25));
+      border: 2px solid var(--gold);
+      border-radius: 14px;
+      padding: 9px 12px;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: #fff;
+      animation: pulseSecret 1.2s ease-in-out infinite alternate;
+    }
+    .secret-unlock-toast.active { display: block; }
+    @keyframes pulseSecret {
+      from { transform: scale(0.99); box-shadow: 0 0 10px rgba(255,209,102,0.3); }
+      to { transform: scale(1.01); box-shadow: 0 0 22px rgba(255,0,127,0.65); }
+    }
+
+    /* ==========================================================
+       TAB 1: 🎴 マイキャラ召喚（ドパガキ特化・超デカ文字＆ゼロ長文）
+       ========================================================== */
+    .tcg-art-frame {
+      height: 255px;
+    }
+
+    /* フローティングダメージ数字（ドパガキ快感エフェクト） */
+    .dmg-popup {
+      position: absolute;
+      top: 28%;
+      left: 50%;
+      transform: translate(-50%, 0) scale(0.5);
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: #ffea00;
+      text-shadow: 0 4px 0 #ff0055, 0 0 22px rgba(255, 234, 0, 0.95);
+      pointer-events: none;
+      z-index: 40;
+      opacity: 0;
+    }
+    .dmg-popup.boom {
+      animation: dmgPopAnim 0.85s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+    @keyframes dmgPopAnim {
+      0% { opacity: 1; transform: translate(-50%, 10px) scale(0.4); }
+      35% { opacity: 1; transform: translate(-50%, -22px) scale(1.25); }
+      75% { opacity: 1; transform: translate(-50%, -32px) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50px) scale(0.85); }
+    }
+
+    /* ドパガキ専用：特大「たたかう⚡」ワンボタン */
+    .btn-dopamine-fight {
+      width: 100%;
+      background: linear-gradient(135deg, #ff0055 0%, #ff9900 50%, #ffea00 100%);
+      background-size: 200% 200%;
+      animation: sheenMove 2s ease infinite;
+      color: #070a12;
+      border: 3px solid #fff;
+      border-radius: 18px;
+      padding: 15px 12px;
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 1.22rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 8px 28px rgba(255, 0, 85, 0.6), inset 0 2px 0 rgba(255,255,255,0.6);
+      text-align: center;
+      letter-spacing: 0.02em;
+      transition: transform 0.1s;
+    }
+    .btn-dopamine-fight:active {
+      transform: scale(0.95);
+    }
+
+    /* 広告枠 */
+    .ad-banner-slot {
+      margin-top: 14px;
+      background: rgba(18, 24, 41, 0.85);
+      border: 1px dashed rgba(255, 209, 102, 0.4);
+      border-radius: 14px;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.72rem;
+    }
+
+    /* モーダル */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 6, 12, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 120;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal-sheet {
+      background: #121829;
+      border: 2px solid var(--gold);
+      border-radius: 22px;
+      max-width: 440px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 15px;
+      text-align: center;
+    }
+
+    #generatedCardImg {
+      width: 100%;
+      border-radius: 14px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- 1. トップヘッダー（タブなし・1画面完結！） -->
+    <header class="top-header" style="margin-bottom:10px;">
+      <div class="game-logo">⚔️ <span>SNSモンスターズ</span></div>
+      <button class="gacha-btn-top" onclick="summonSecretGacha()">🎰 レア召喚ガチャ</button>
+    </header>
+
+    <!-- ==========================================
+         ① マイキャラ召喚エリア（入力欄は常に空欄＆ワンタップ対応）
+         ========================================== -->
+    <div id="pane-card" class="tab-pane active">
+      <section class="summon-dock">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; padding:0 2px;">
+          <span style="font-size:0.74rem; font-weight:900; color:var(--gold);">
+            👇 自分の 𝕏 (旧Twitter) IDを入れて召喚！
+          </span>
+          <span style="font-size:0.65rem; font-weight:800; color:var(--mint);">
+            @なしでOK
+          </span>
+        </div>
+        <div class="search-row" id="mainSearchRow">
+          <span class="at-prefix-badge">𝕏 @</span>
+          <input
+            type="text"
+            id="usernameInput"
+            class="id-input"
+            value=""
+            placeholder="ここに自分のIDを入力 (例: ariyoshihiroiki)"
+            autocomplete="off"
+            autocapitalize="none"
+            spellcheck="false"
+            oninput="toggleClearBtn('usernameInput', 'clearUserBtn')"
+            onkeydown="if(event.key==='Enter') summonFromInput()"
+          />
+          <button type="button" id="clearUserBtn" class="input-clear-btn" onclick="clearInputBox('usernameInput', 'clearUserBtn')" title="クリア">✕</button>
+          <button id="summonBtn" class="summon-btn" onclick="summonFromInput()">召喚⚡</button>
+        </div>
+
+        <div style="font-size:0.66rem; font-weight:800; color:var(--muted); margin:6px 0 4px 2px;">
+          👑 または有名人をワンタップでお試し召喚：
+        </div>
+        <div class="preset-scroll">
+          <button class="char-pill active" id="pill-ariyoshihiroiki" onclick="quickSummon('ariyoshihiroiki', 'x')">☠️ 有吉弘行</button>
+          <button class="char-pill" id="pill-hikakin" onclick="quickSummon('hikakin', 'x')">🌟 ヒカキン</button>
+          <button class="char-pill" id="pill-takapon_jp" onclick="quickSummon('takapon_jp', 'x')">🔥 ホリエモン</button>
+          <button class="char-pill" id="pill-hirox246" onclick="quickSummon('hirox246', 'x')">💧 ひろゆき</button>
+          <button class="char-pill" id="pill-sugita_lovin" onclick="quickSummon('sugita_lovin', 'x')">⚡ 杉田智和</button>
+          <button class="char-pill" id="pill-345__chan" onclick="quickSummon('345__chan', 'x')">❄️ 指原莉乃</button>
+          <button class="char-pill" id="pill-kinnikun0917" onclick="quickSummon('kinnikun0917', 'x')">🥊 きんに君</button>
+          <button class="char-pill" id="pill-ore825" onclick="quickSummon('ore825', 'x')">🍜 リュウジ</button>
+          <button class="char-pill" id="pill-H_KANNA_0203" onclick="quickSummon('H_KANNA_0203', 'x')">🧚 橋本環奈</button>
+          <button class="char-pill" id="pill-ado1024imokenp" onclick="quickSummon('ado1024imokenp', 'x')">🎵 Ado</button>
+          <button class="char-pill" id="pill-aNo2mass" onclick="quickSummon('aNo2mass', 'x')">💤 あのちゃん</button>
+          <button class="char-pill" id="pill-MatsukawaRyo" onclick="quickSummon('MatsukawaRyo', 'x')">🌿 松丸亮吾</button>
+          <button class="char-pill" id="pill-ochyai" onclick="quickSummon('ochyai', 'x')">🤖 落合陽一</button>
+          <button class="char-pill" id="pill-nobrock" onclick="quickSummon('nobrock', 'x')">👻 佐久間宣行</button>
+        </div>
+      </section>
+
+      <!-- 🎉 シークレット解放通知トースト -->
+      <div id="secretUnlockToast" class="secret-unlock-toast"></div>
+
+      <!-- ローディング -->
+      <div id="loadingBox" class="loader-box">
+        <div class="pokeball-spin"></div>
+        <div style="font-weight:900; font-size:1.05rem; color:var(--gold);">⚡ モンスター召喚中...</div>
+      </div>
+
+      <!-- 🎴 ポケカ風ホログラムカード本体（見切れゼロ・直感デザイン） -->
+      <div id="cardStage">
+        <div class="tcg-card-outer" id="tcgOuterFrame">
+          <div class="tcg-card-inner">
+            <!-- カード上部：レア度・種族名・HP -->
+            <div class="tcg-top-bar">
+              <div class="tcg-name-group">
+                <span id="cRarity" class="tcg-rarity-pill">✨ SSR</span>
+                <span id="cSpecies" class="tcg-species-name">ロジカルゴン</span>
+              </div>
+              <div class="tcg-hp-group">
+                <span class="tcg-hp-label">HP</span>
+                <span id="cHp" class="tcg-hp-val">260</span>
+              </div>
+            </div>
+
+            <!-- モンスターイラスト枠 -->
+            <div class="tcg-art-frame">
+              <img id="cMonsterImg" class="tcg-monster-img" src="assets/monsters/fire_dragon.jpg" alt="monster" />
+              <div class="holo-sheen"></div>
+              <span id="cElementBadge" class="art-element-pill">🔥 炎タイプ</span>
+              <div class="art-trainer-badge">
+                <div class="trainer-left">
+                  <img id="cTrainerAvatar" class="trainer-avatar" src="" alt="avatar" />
+                  <div>
+                    <div id="cTrainerName" class="trainer-name"></div>
+                    <div id="cTrainerId" class="trainer-id"></div>
+                  </div>
+                </div>
+                <span id="cScanCount" style="font-size:0.68rem; font-weight:900; color:var(--mint);">⚡召喚完了</span>
+              </div>
+            </div>
+
+            <!-- 二つ名リボン（1行インパクト） -->
+            <div class="tcg-class-ribbon">
+              <div style="font-size:0.62rem; font-weight:900; color:#cbd5e1; margin-bottom:1px;">🏷️ AIが命名した二つ名</div>
+              <div id="cAdanaMain" class="tcg-adana-main"></div>
+              <div id="cAdanaSub" class="tcg-adana-sub" style="display:none;"></div>
+            </div>
+
+            <!-- ⚔️ 攻撃ワザ2つ（一目で攻撃だとわかるラベル＋攻撃力＋1行解説） -->
+            <div class="moves-section-header">
+              <span>⚔️ このキャラの攻撃ワザ（バトルで使用）</span>
+              <span style="color:#94a3b8; font-size:0.65rem;">全2ワザ</span>
+            </div>
+            <div class="tcg-moves-box" style="margin-bottom:0;">
+              <div class="tcg-move-item" style="padding:9px 11px;">
+                <div class="move-head" style="margin-bottom:3px;">
+                  <span class="move-title">
+                    <span class="move-type-badge">⚡通常ワザ</span>
+                    <span id="cMove1Name"></span>
+                  </span>
+                  <span class="move-dmg-pill">
+                    <span class="move-dmg-label">攻撃力</span>
+                    <span id="cMove1Dmg" class="move-dmg">120</span>
+                  </span>
+                </div>
+                <div id="cMove1Desc" class="move-desc"></div>
+              </div>
+              <div class="tcg-move-item" style="padding:9px 11px; border:1.5px solid rgba(255,59,92,0.5); background:linear-gradient(135deg, rgba(255,59,92,0.12), rgba(7,10,18,0.85));">
+                <div class="move-head" style="margin-bottom:3px;">
+                  <span class="move-title">
+                    <span class="move-type-badge ult">💥必殺ワザ</span>
+                    <span id="cMove2Name"></span>
+                  </span>
+                  <span class="move-dmg-pill">
+                    <span class="move-dmg-label" style="color:#ff8fa3;">攻撃力</span>
+                    <span id="cMove2Dmg" class="move-dmg" style="color:#ff3b5c;">220</span>
+                  </span>
+                </div>
+                <div id="cMove2Desc" class="move-desc" style="color:#fda4af;"></div>
+              </div>
+            </div>
+
+            <!-- 非表示保持（Canvas用データのみ保持） -->
+            <div style="display:none;">
+              <div id="cBrainBar"></div>
+              <div id="cBrainTags"></div>
+              <span id="cProofShort"></span>
+              <span id="cGoodFood"></span>
+              <span id="cWeakness"></span>
+              <div id="cFlavorText"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- カード保存＆Xシェア＆即バトル移動ボタン -->
+        <div class="card-actions" style="margin-bottom:14px;">
+          <button class="btn-go-battle" onclick="switchTab('battle')" style="padding:12px; font-size:0.9rem;">
+            ⚔️ このキャラで下のVSバトルを戦う！👇
+          </button>
+          <div class="share-row-2">
+            <button class="btn-share-card" onclick="openShareCardModal()">
+              📸 カード画像を保存
+            </button>
+            <a id="shareCardXBtn" class="btn-post-x" href="#" target="_blank" rel="noopener noreferrer">
+              𝕏 キャラをシェア
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         ② そのまま下で即バトル！⚔️ VS決闘アリーナ（タブ切替不要）
+         ========================================== -->
+    <div id="pane-battle">
+      <section class="arena-stage" style="margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-family:'M PLUS Rounded 1c',sans-serif; font-size:0.98rem; font-weight:900; color:var(--gold);">
+            ⚔️ VSバトルアリーナ
+          </span>
+          <span style="font-size:0.68rem; font-weight:900; color:var(--mint);">戦う相手を選ぼう👇</span>
+        </div>
+
+        <!-- 対戦相手（2P）の選択・ID召喚 -->
+        <div class="opponent-picker">
+          <div style="font-size:0.66rem; font-weight:800; color:var(--muted); margin-bottom:4px;">
+            🆚 戦いたい相手（2P）をワンタップ選択：
+          </div>
+          <div class="preset-scroll" style="margin-bottom:7px;">
+            <button class="char-pill opp-pill active" id="opp-pill-hikakin" onclick="loadOpponent('hikakin', 'x')">🆚 🌟ヒカキン</button>
+            <button class="char-pill opp-pill" id="opp-pill-ariyoshihiroiki" onclick="loadOpponent('ariyoshihiroiki', 'x')">🆚 ☠️有吉弘行</button>
+            <button class="char-pill opp-pill" id="opp-pill-hirox246" onclick="loadOpponent('hirox246', 'x')">🆚 💧ひろゆき</button>
+            <button class="char-pill opp-pill" id="opp-pill-takapon_jp" onclick="loadOpponent('takapon_jp', 'x')">🆚 🔥ホリエモン</button>
+            <button class="char-pill opp-pill" id="opp-pill-sugita_lovin" onclick="loadOpponent('sugita_lovin', 'x')">🆚 ⚡杉田智和</button>
+            <button class="char-pill opp-pill" id="opp-pill-345__chan" onclick="loadOpponent('345__chan', 'x')">🆚 ❄️指原莉乃</button>
+            <button class="char-pill opp-pill" id="opp-pill-kinnikun0917" onclick="loadOpponent('kinnikun0917', 'x')">🆚 🥊きんに君</button>
+            <button class="char-pill opp-pill" id="opp-pill-ore825" onclick="loadOpponent('ore825', 'x')">🆚 🍜リュウジ</button>
+            <button class="char-pill opp-pill" id="opp-pill-H_KANNA_0203" onclick="loadOpponent('H_KANNA_0203', 'x')">🆚 🧚橋本環奈</button>
+            <button class="char-pill opp-pill" id="opp-pill-ado1024imokenp" onclick="loadOpponent('ado1024imokenp', 'x')">🆚 🎵Ado</button>
+            <button class="char-pill opp-pill" id="opp-pill-aNo2mass" onclick="loadOpponent('aNo2mass', 'x')">🆚 💤あのちゃん</button>
+            <button class="char-pill opp-pill" id="opp-pill-MatsukawaRyo" onclick="loadOpponent('MatsukawaRyo', 'x')">🆚 🌿松丸亮吾</button>
+            <button class="char-pill opp-pill" id="opp-pill-secret" onclick="summonRandomSecretOpponent()" style="border-color:var(--gold); color:var(--gold);">🆚 ❓レアボス乱入</button>
+          </div>
+          <div class="opp-input-row" style="align-items:center;">
+            <input
+              type="text"
+              id="oppInput"
+              class="opp-input"
+              value=""
+              placeholder="友達や好きな人の 𝕏 IDを入力 (例: hirox246)"
+              autocomplete="off"
+              autocapitalize="none"
+              spellcheck="false"
+              oninput="toggleClearBtn('oppInput', 'clearOppBtn')"
+              onkeydown="if(event.key==='Enter') summonCustomOpponent()"
+            />
+            <button type="button" id="clearOppBtn" class="input-clear-btn" onclick="clearInputBox('oppInput', 'clearOppBtn')" title="クリア">✕</button>
+            <button class="opp-summon-btn" onclick="summonCustomOpponent()">相手召喚⚡</button>
+          </div>
+        </div>
+
+        <!-- 1P vs 2P 対峙フィールド -->
+        <div class="battle-field">
+          <!-- 1P（自分） -->
+          <div class="fighter-pod" id="pod1P">
+            <div id="dmgPop1" class="dmg-popup">-180</div>
+            <span style="font-size:0.65rem; font-weight:900; color:var(--mint);">1P あなた</span>
+            <img id="b1Img" class="f-monster-img" src="assets/monsters/fire_dragon.jpg" alt="1P" />
+            <div id="b1Species" class="f-name">ロジカルゴン</div>
+            <div id="b1Trainer" class="f-trainer">@takapon_jp</div>
+            <div class="hp-bar-outer"><div id="b1HpBar" class="hp-bar-inner"></div></div>
+            <div id="b1HpText" class="hp-text">HP 260</div>
+          </div>
+
+          <div class="vs-center-badge">VS</div>
+
+          <!-- 2P（相手） -->
+          <div class="fighter-pod" id="pod2P">
+            <div id="dmgPop2" class="dmg-popup">-240</div>
+            <span style="font-size:0.65rem; font-weight:900; color:var(--fire);">2P 対戦相手</span>
+            <img id="b2Img" class="f-monster-img" src="assets/monsters/water_sniper.jpg" alt="2P" />
+            <div id="b2Species" class="f-name">ロンパッパ</div>
+            <div id="b2Trainer" class="f-trainer">@hirox246</div>
+            <div class="hp-bar-outer"><div id="b2HpBar" class="hp-bar-inner"></div></div>
+            <div id="b2HpText" class="hp-text">HP 240</div>
+          </div>
+        </div>
+
+        <!-- 1行ショート実況バー -->
+        <div id="battleLogBox" class="battle-log-window" style="min-height:42px; padding:8px 10px; text-align:center; font-size:0.82rem; margin-bottom:8px;">
+          👇 下の攻撃ボタンをタップして相手をぶっ飛ばせ！
+        </div>
+
+        <!-- 🔥 ドパガキ仕様：どの攻撃ワザで殴るか一目でわかる特大ボタン＋サブボタン -->
+        <button id="mainUltBtn" class="btn-dopamine-fight" onclick="executeTurn(2)" style="font-size:1.05rem; padding:14px 10px; margin-bottom:7px;">
+          💥 必殺ワザ「毒舌ワンパン処刑」で攻撃！！
+        </button>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;">
+          <button id="subNormalAttackBtn" class="cmd-btn" onclick="executeTurn(1)" style="text-align:center; padding:9px 6px; font-size:0.75rem;">
+            ⚡ 通常ワザ：<span id="cmdMove1Name">あだ名ぶった斬り</span>
+          </button>
+          <button class="cmd-btn" onclick="summonRandomOpponentQuick()" style="text-align:center; padding:9px 6px; font-size:0.75rem; border-color:var(--water); color:var(--water);">
+            🎲 別の相手をランダム召喚
+          </button>
+        </div>
+        <div style="display:none;">
+          <span id="cmdMove2Name"></span>
+        </div>
+
+        <!-- 🏆 勝敗リザルト（保存＆Xシェアの2ボタンだけ） -->
+        <div id="battleWinBanner" class="battle-win-banner">
+          <div id="battleWinnerHeadline" style="font-size:1.15rem; font-weight:900; color:var(--gold); margin-bottom:3px;"></div>
+          <div id="battleFinishReason" style="font-size:0.78rem; color:#fff; font-weight:700; margin-bottom:9px;"></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <button class="btn-share-card" style="padding:11px; font-size:0.82rem;" onclick="openVsPosterModal()">
+              📸 VS対決画像を保存
+            </button>
+            <a id="shareBattleXBtn" href="#" target="_blank" class="btn-post-x" style="padding:11px; font-size:0.82rem;">
+              𝕏 勝敗をポスト
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 🛒 超シンプル＆高クリック率！写真メインのラッキーアイテムカード -->
+    <div class="ad-banner-slot" style="padding:11px; text-align:left; background:linear-gradient(145deg,#141c30,#090d18); border:2px solid rgba(255,209,102,0.6);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;">
+        <span id="adDynamicText" style="font-size:0.78rem; font-weight:900; color:var(--gold);">
+          🎁 このキャラのラッキーアイテム
+        </span>
+        <span style="background:linear-gradient(90deg,#ff3b5c,#ff9900); color:#fff; font-size:0.6rem; font-weight:900; padding:2px 7px; border-radius:999px;">
+          🔥人気No.1
+        </span>
+      </div>
+
+      <div style="display:flex; gap:10px; align-items:center; background:rgba(7,10,18,0.85); border-radius:12px; padding:8px; margin-bottom:8px;">
+        <img id="affItemImg" src="https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=300&auto=format&fit=crop&q=80" alt="おすすめ商品画像" style="width:72px; height:72px; border-radius:10px; object-fit:cover; border:2px solid var(--gold); background:#fff; flex-shrink:0;" />
+        <div style="flex:1; min-width:0;">
+          <div id="affItemBuff" style="font-size:0.65rem; font-weight:900; color:var(--mint); margin-bottom:2px;">
+            ⚡ 攻撃力＋150% UP！
+          </div>
+          <div id="affAmazonLabel" style="font-size:0.84rem; font-weight:900; color:#fff; line-height:1.25; margin-bottom:3px;">
+            辛辛魚 激辛カップ麺
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="color:#fbbf24; font-size:0.72rem; font-weight:900;">★★★★★</span>
+            <span id="affItemPrice" style="font-size:0.85rem; font-weight:900; color:#ff6b81;">¥1,680</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <a id="affAmazonBtn" href="https://www.amazon.co.jp/s?k=%E8%BE%9B%E8%BE%9B%E9%AD%9A&tag=snsmonster-22" target="_blank" rel="noopener noreferrer" onclick="trackAffiliateClick('amazon')" style="display:flex; align-items:center; justify-content:center; gap:4px; background:linear-gradient(135deg,#ff9900,#ff5500); color:#fff; text-decoration:none; padding:10px; border-radius:10px; font-weight:900; font-size:0.8rem;">
+          🛒 Amazonで見る
+        </a>
+        <a id="affRakutenBtn" href="https://search.rakuten.co.jp/search/mall/%E8%BE%9B%E8%BE%9B%E9%AD%9A/" target="_blank" rel="noopener noreferrer" onclick="trackAffiliateClick('rakuten')" style="display:flex; align-items:center; justify-content:center; gap:4px; background:linear-gradient(135deg,#bf0000,#ff3b5c); color:#fff; text-decoration:none; padding:10px; border-radius:10px; font-weight:900; font-size:0.8rem;">
+          🛍️ 楽天で見る
+        </a>
+      </div>
+
+      <!-- サブ枠・広告枠（非表示またはコンパクト保持） -->
+      <div id="subItemsGrid" style="display:none;"></div>
+      <div id="customAdSlot" style="display:none; margin-top:8px; text-align:center;"></div>
+    </div>
+  </div>
+
+  <!-- 📸 ポケカ風シェア画像モーダル -->
+  <div id="shareModal" class="modal-backdrop" onclick="if(event.target===this) closeShareCardModal()">
+    <div class="modal-sheet">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:900; font-size:0.88rem; color:var(--gold);">📸 ポケカ風マイキャラ画像（長押し保存OK）</span>
+        <button onclick="closeShareCardModal()" style="background:rgba(255,255,255,0.15); border:none; color:#fff; padding:5px 12px; border-radius:999px; font-weight:900; cursor:pointer;">✕</button>
+      </div>
+      <img id="generatedCardImg" alt="モンスターカード画像" />
+      <canvas id="shareCanvas" style="display:none;"></canvas>
+      <button class="btn-share-card" style="width:100%; padding:13px; font-size:0.9rem;" onclick="shareCardImageNative()">
+        📲 スマホの共有メニューで送る / 写真に保存
+      </button>
+    </div>
+  </div>
+
+  <!-- 📸 VS対決ポスター画像モーダル（Xバズ着火用） -->
+  <div id="vsPosterModal" class="modal-backdrop" onclick="if(event.target===this) closeVsPosterModal()">
+    <div class="modal-sheet">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:900; font-size:0.88rem; color:var(--gold);">⚔️ VS対決ポスター画像（長押し保存・X投稿用）</span>
+        <button onclick="closeVsPosterModal()" style="background:rgba(255,255,255,0.15); border:none; color:#fff; padding:5px 12px; border-radius:999px; font-weight:900; cursor:pointer;">✕</button>
+      </div>
+      <img id="generatedVsImg" alt="VS対決ポスター画像" style="width:100%; border-radius:14px; margin:10px 0;" />
+      <canvas id="vsPosterCanvas" style="display:none;"></canvas>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <button class="btn-share-card" style="padding:12px; font-size:0.82rem;" onclick="shareVsImageNative()">
+          📲 対決画像を保存・共有
+        </button>
+        <button onclick="copyViralTemplate('battle')" style="background:linear-gradient(135deg,#ffd166,#ff9f1c); border:none; color:#070a12; border-radius:12px; padding:12px; font-family:inherit; font-size:0.82rem; font-weight:900; cursor:pointer;">
+          📋 対決バズ文をコピー
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="monsters_engine.js"></script>
+  <script>
+    let currentPlatform = 'x';
+    let player1Data = null;
+    let player2Data = null;
+    let loadedMonsterImg = null;
+    let loadedAvatarImg = null;
+    let b1MaxHp = 260, b1CurHp = 260;
+    let b2MaxHp = 240, b2CurHp = 240;
+
+    function resolveAssetPath(p) {
+      if (!p) return '';
+      if (p.startsWith('http://') || p.startsWith('https://') || p.startsWith('data:')) return p;
+      return p.replace(/^\/+/, '');
+    }
+
+    async function fetchAnalyzeData(handle, plat) {
+      // GitHub Pages (*.github.io) では即座に0.05秒のサーバーレスエンジンを実行
+      const isStaticHost = window.location.hostname.endsWith('github.io') || window.location.hostname.endsWith('pages.dev');
+      if (!isStaticHost) {
+        try {
+          const res = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: handle, platform: plat || 'x' })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.ok) {
+              if (data.monster && data.monster.image) {
+                data.monster.image = resolveAssetPath(data.monster.image);
+              }
+              return data;
+            }
+          }
+        } catch (e) {}
+      }
+      if (window.analyzeAccountClientSide) {
+        return await window.analyzeAccountClientSide(handle);
+      }
+      return null;
+    }
+
+    function clamp(str, max) {
+      if (!str) return '';
+      const s = String(str).replace(/\n+/g, ' ').trim();
+      return s.length > max ? s.slice(0, max - 1) + '…' : s;
+    }
+
+    function switchTab(tab) {
+      // 1画面完結型のため、バトル指定時はバトルエリアへスムーズスクロール
+      if (tab === 'battle') {
+        const el = document.getElementById('pane-battle');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function setPlatform(plat) {
+      currentPlatform = 'x';
+    }
+
+    function cleanHandleInput(raw) {
+      if (!raw) return '';
+      let s = String(raw).trim();
+      s = s.replace(/^https?:\/\/(www\.)?(x|twitter)\.com\//i, '');
+      s = s.split(/[/?#]/)[0];
+      return s.replace(/^@+/, '').trim();
+    }
+
+    function toggleClearBtn(inputId, btnId) {
+      const inp = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!inp || !btn) return;
+      if (inp.value.trim().length > 0) {
+        btn.classList.add('visible');
+      } else {
+        btn.classList.remove('visible');
+      }
+    }
+
+    function clearInputBox(inputId, btnId) {
+      const inp = document.getElementById(inputId);
+      if (inp) {
+        inp.value = '';
+        inp.focus();
+      }
+      toggleClearBtn(inputId, btnId);
+    }
+
+    function summonFromInput() {
+      const inp = document.getElementById('usernameInput');
+      const cleaned = cleanHandleInput(inp ? inp.value : '');
+      if (!cleaned) {
+        if (inp) {
+          inp.focus();
+          const row = document.getElementById('mainSearchRow');
+          if (row) {
+            row.style.borderColor = '#ff3b5c';
+            row.style.boxShadow = '0 0 15px rgba(255,59,92,0.6)';
+            setTimeout(() => {
+              row.style.borderColor = 'rgba(255, 209, 102, 0.4)';
+              row.style.boxShadow = 'none';
+            }, 900);
+          }
+        }
+        return;
+      }
+      inp.value = cleaned;
+      toggleClearBtn('usernameInput', 'clearUserBtn');
+      document.querySelectorAll('#pane-card .char-pill').forEach(el => el.classList.remove('active'));
+      summonAccount(cleaned);
+    }
+
+    function quickSummon(handle, plat) {
+      setPlatform(plat);
+      // 重要：有名人サンプルを押しても入力欄（#usernameInput）は空欄のまま維持し、消す手間をゼロにする！
+      document.querySelectorAll('#pane-card .char-pill').forEach(el => el.classList.remove('active'));
+      const pill = document.getElementById('pill-' + handle);
+      if (pill) pill.classList.add('active');
+      summonAccount(handle);
+    }
+
+    // 📖 全20種モンスターマスター図鑑データ（うち6体は未発見時「？？？」シルエット封印）
+    const DEX_MASTER = [
+      { no: 'No.001', name: 'ロジカルゴン', elem: '🔥炎', rarity: '✨SSR', img: 'assets/monsters/fire_dragon.jpg', handle: 'takapon_jp', plat: 'x', desc: '代表：ホリエモン', secret: false, color: '#ff3b5c' },
+      { no: 'No.002', name: 'ロンパッパ', elem: '💧水', rarity: '✨SSR', img: 'assets/monsters/water_sniper.jpg', handle: 'hirox246', plat: 'x', desc: '代表：ひろゆき', secret: false, color: '#00d2ff' },
+      { no: 'No.003', name: 'ヨフカシオン', elem: '⚡雷', rarity: '🌈UR', img: 'assets/monsters/electric_cosmic.jpg', handle: 'sugita_lovin', plat: 'x', desc: '代表：杉田智和(声優)', secret: false, color: '#a855f7' },
+      { no: 'No.004', name: 'クバリッチ', elem: '🌟光', rarity: '✨SSR', img: 'assets/monsters/gold_lion.jpg', handle: 'hikakin', plat: 'x', desc: '代表：ヒカキン', secret: false, color: '#ffd166' },
+      { no: 'No.005', name: 'キンマクン', elem: '🌿草', rarity: '✨SSR', img: 'assets/monsters/grass_doctor.jpg', handle: 'MatsukawaRyo', plat: 'x', desc: '代表：松丸亮吾', secret: false, color: '#00f5a0' },
+      { no: 'No.006', name: 'エゴサッチ', elem: '👻影', rarity: '🔥SR', img: 'assets/monsters/shadow_ghost.jpg', handle: 'nobrock', plat: 'x', desc: '代表：佐久間宣行', secret: false, color: '#c084fc' },
+      { no: 'No.007', name: 'イイネッチ', elem: '🧚妖', rarity: '🔥SR', img: 'assets/monsters/fairy_rabbit.jpg', handle: 'H_KANNA_0203', plat: 'x', desc: '代表：橋本環奈', secret: false, color: '#ff6b9d' },
+      { no: 'No.008', name: 'バズ神アルカナ', elem: '🌈神話', rarity: '👑GOD (0.05%)', img: 'assets/monsters/rainbow_mythic.jpg', handle: 'buzz_god', plat: 'x', desc: '出現率0.05%の封印神獣', secret: true, hint: '🎰レアガチャで低確率出現', color: '#ffd166' },
+      { no: 'No.009', name: 'ダンベルン', elem: '🥊格闘', rarity: '✨SSR', img: 'assets/monsters/fighting_muscle.jpg', handle: 'kinnikun0917', plat: 'x', desc: '代表：なかやまきんに君', secret: false, color: '#ff5e3a' },
+      { no: 'No.010', name: 'ドクゼツン', elem: '☠️毒', rarity: '🌈UR', img: 'assets/monsters/poison_snack.jpg', handle: 'ariyoshihiroiki', plat: 'x', desc: '代表：有吉弘行', secret: false, color: '#e879f9' },
+      { no: 'No.011', name: 'メシテロン', elem: '🍜飯テロ', rarity: '🔥SR', img: 'assets/monsters/gourmet_chef.jpg', handle: 'ore825', plat: 'x', desc: '代表：リュウジ(料理研究家)', secret: false, color: '#f59e0b' },
+      { no: 'No.012', name: 'プロンプトン', elem: '🤖鋼', rarity: '✨SSR', img: 'assets/monsters/steel_hacker.jpg', handle: 'ochyai', plat: 'x', desc: '代表：落合陽一', secret: false, color: '#38bdf8' },
+      { no: 'No.013', name: 'ネオチマル', elem: '💤夢', rarity: '🔥SR', img: 'assets/monsters/sleepy_sloth.jpg', handle: 'aNo2mass', plat: 'x', desc: '代表：あのちゃん', secret: false, color: '#818cf8' },
+      { no: 'No.014', name: 'ツヤカガミ', elem: '❄️氷', rarity: '✨SSR', img: 'assets/monsters/ice_beauty.jpg', handle: '345__chan', plat: 'x', desc: '代表：指原莉乃', secret: false, color: '#67e8f9' },
+      { no: 'No.015', name: 'パリピート', elem: '🎵音', rarity: '🔥SR', img: 'assets/monsters/sound_dj.jpg', handle: 'ado1024imokenp', plat: 'x', desc: '代表：Ado', secret: false, color: '#ec4899' },
+      { no: 'No.016', name: 'ウラアカ魔王', elem: '🌑闇', rarity: '👑GOD (0.03%)', img: 'assets/monsters/abyss_demon.jpg', handle: 'ura_maou', plat: 'x', desc: '出現率0.03%の禁断裏ボス', secret: true, hint: '🎰レアガチャで低確率出現', color: '#ff3b5c' },
+      { no: 'No.017', name: 'クロノギアス', elem: '⏳時空', rarity: '💎LR (0.12%)', img: 'assets/monsters/chrono_dragon.jpg', handle: 'chrono_king', plat: 'x', desc: '時代を先読みする時空神竜', secret: true, hint: '🎰レアガチャで出現', color: '#eab308' },
+      { no: 'No.018', name: 'オウゴンホウオウ', elem: '💎黄金', rarity: '💎LR (0.10%)', img: 'assets/monsters/fortune_phoenix.jpg', handle: 'gold_phoenix', plat: 'x', desc: '開運ゴールドラッシュ神鳥', secret: true, hint: '🎰レアガチャで出現', color: '#f59e0b' },
+      { no: 'No.019', name: 'アカシックセラフ', elem: '👁️全知', rarity: '🌌MYTHIC (0.01%)', img: 'assets/monsters/akasha_deity.jpg', handle: 'akasha_god', plat: 'x', desc: '本音を透視する全知全能神', secret: true, hint: '🎰超激レアガチャで出現', color: '#818cf8' },
+      { no: 'No.020', name: 'オメガ・シンギュラリティ', elem: '🪐創世', rarity: '🪐OMEGA (0.001%)', img: 'assets/monsters/omega_singularity.jpg', handle: 'omega_zero', plat: 'x', desc: '10万人に1人のSNS創世神', secret: true, hint: '🪐0.001%奇跡のガチャ枠', color: '#ff007f' }
+    ];
+
+    function getUnlockedSecrets() {
+      try {
+        return JSON.parse(localStorage.getItem('sns_monsters_unlocked_v2') || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function markSecretUnlocked(dexNo, monsterObj) {
+      const list = getUnlockedSecrets();
+      const toast = document.getElementById('secretUnlockToast');
+      if (monsterObj && monsterObj.is_secret) {
+        const isFirstTime = !list.includes(dexNo);
+        if (isFirstTime) {
+          list.push(dexNo);
+          try { localStorage.setItem('sns_monsters_unlocked_v2', JSON.stringify(list)); } catch (e) {}
+        }
+        toast.innerHTML = `🎉 <strong>【SECRET解放!!】</strong> 幻の封印モンスター『<strong>${dexNo} ${monsterObj.species}</strong>（${monsterObj.rarity}）』を引き当てました！図鑑の封印が解かれました！`;
+        toast.classList.add('active');
+      } else {
+        toast.classList.remove('active');
+      }
+      renderDexGrid();
+    }
+
+    function renderDexGrid() {
+      const unlocked = getUnlockedSecrets();
+      const totalSecret = DEX_MASTER.filter(d => d.secret).length;
+      const unlockedCount = unlocked.length;
+      const totalFound = (DEX_MASTER.length - totalSecret) + unlockedCount;
+      const counterEl = document.getElementById('dexProgressCounter');
+      if (counterEl) {
+        counterEl.textContent = `🏆 図鑑コンプリート率：${totalFound} / ${DEX_MASTER.length}体（🔒未発見シークレット 残り${totalSecret - unlockedCount}体）`;
+      }
+
+      const grid = document.getElementById('dexDynamicGrid');
+      if (!grid) return;
+      grid.innerHTML = DEX_MASTER.map(item => {
+        const isLocked = item.secret && !unlocked.includes(item.no);
+        if (isLocked) {
+          return `
+            <div class="dex-card locked-secret" onclick="alert('🔒【未発見シークレット：${item.no}】\\nレア度：${item.rarity}\\n\\nまだ封印されています！画面右上の「🎰レア召喚ガチャ」を回すか、色んなアカウントIDを召喚して引き当てよう！')">
+              <img class="dex-img" src="${item.img}" alt="locked" />
+              <div class="secret-lock-badge">🔒 未発見 SECRET</div>
+              <div style="font-size:0.66rem; color:var(--gold); font-weight:900;">${item.no}｜${item.rarity}</div>
+              <div style="font-weight:900; font-size:0.88rem; color:#94a3b8;">？？？？？？</div>
+              <div style="font-size:0.66rem; color:#a855f7; font-weight:900;">${item.hint}</div>
+            </div>
+          `;
+        }
+        return `
+          <div class="dex-card" style="${item.secret ? 'border-color:var(--gold); background:linear-gradient(145deg,#2a1b4e,#121829);' : ''}" onclick="quickSummon('${item.handle}','${item.plat}'); switchTab('card');">
+            <img class="dex-img" src="${item.img}" alt="${item.no}" />
+            <div style="font-size:0.66rem; color:${item.color}; font-weight:900;">${item.no}｜${item.elem}（${item.rarity.split(' ')[0]}）</div>
+            <div style="font-weight:900; font-size:0.86rem; ${item.secret ? 'color:var(--gold);' : ''}">${item.name}</div>
+            <div style="font-size:0.66rem; color:var(--muted);">${item.desc}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function summonSecretGacha() {
+      switchTab('card');
+      // リアルな確率重み付きガチャ抽選（通常SSR/URも出つつ、運が良いと封印シークレット6体が降臨！）
+      const roll = Math.random() * 100;
+      let pick = { id: 'snack_mama', plat: 'x' };
+      if (roll < 4) {
+        pick = { id: 'omega_zero', plat: 'x' };      // 🪐 0.001%枠 OMEGA創世神
+      } else if (roll < 10) {
+        pick = { id: 'akasha_god', plat: 'x' };      // 🌌 0.01%枠 MYTHIC全知神
+      } else if (roll < 18) {
+        pick = { id: 'ura_maou', plat: 'x' };        // 👑 0.03%枠 GOD裏アカ魔王
+      } else if (roll < 27) {
+        pick = { id: 'buzz_god', plat: 'x' };        // 👑 0.05%枠 GODバズ神
+      } else if (roll < 38) {
+        pick = { id: 'gold_phoenix', plat: 'x' };    // 💎 0.10%枠 LR黄金ホウオウ
+      } else if (roll < 50) {
+        pick = { id: 'chrono_king', plat: 'x' };     // 💎 0.12%枠 LR時空神クロノギアス
+      } else {
+        const normals = [
+          { id: 'ariyoshihiroiki', plat: 'x' },
+          { id: 'hikakin', plat: 'x' },
+          { id: 'sugita_lovin', plat: 'x' },
+          { id: '345__chan', plat: 'x' },
+          { id: 'kinnikun0917', plat: 'x' },
+          { id: 'ore825', plat: 'x' },
+          { id: 'H_KANNA_0203', plat: 'x' },
+          { id: 'ado1024imokenp', plat: 'x' }
+        ];
+        pick = normals[Math.floor(Math.random() * normals.length)];
+      }
+      quickSummon(pick.id, pick.plat);
+    }
+
+    function summonRandomSecretOpponent() {
+      const secretBosses = ['chrono_king', 'gold_phoenix', 'buzz_god', 'ura_maou', 'akasha_god', 'omega_zero'];
+      const pick = secretBosses[Math.floor(Math.random() * secretBosses.length)];
+      loadOpponent(pick, 'x');
+    }
+
+    function loadImg(url) {
+      return new Promise(resolve => {
+        if (!url) return resolve(null);
+        const cleanUrl = resolveAssetPath(url);
+        const isStaticHost = window.location.hostname.endsWith('github.io') || window.location.hostname.endsWith('pages.dev');
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => {
+          // フォールバック：プロキシ経由が失敗した場合は直接読み込み
+          if (cleanUrl.startsWith('http') && img.src.includes('/api/avatar')) {
+            const img2 = new Image();
+            img2.crossOrigin = 'anonymous';
+            img2.onload = () => resolve(img2);
+            img2.onerror = () => resolve(null);
+            img2.src = cleanUrl;
+          } else {
+            resolve(null);
+          }
+        };
+        if (cleanUrl.startsWith('http') && !isStaticHost) {
+          img.src = '/api/avatar?url=' + encodeURIComponent(cleanUrl);
+        } else {
+          img.src = cleanUrl;
+        }
+      });
+    }
+
+    async function summonAccount(targetHandle) {
+      const fromInput = cleanHandleInput(document.getElementById('usernameInput').value);
+      const raw = targetHandle || fromInput || 'ariyoshihiroiki';
+      const loader = document.getElementById('loadingBox');
+      const stage = document.getElementById('cardStage');
+      stage.style.opacity = '0.35';
+      loader.classList.add('active');
+
+      try {
+        const data = await fetchAnalyzeData(raw, currentPlatform);
+        if (data && data.ok) {
+          player1Data = data;
+          loadedMonsterImg = await loadImg(data.monster.image);
+          loadedAvatarImg = await loadImg(data.profile.avatar);
+          renderMonsterCard(data);
+          syncFighter1P(data);
+        }
+      } catch (e) {
+        alert('通信エラー: ' + e.message);
+      } finally {
+        loader.classList.remove('active');
+        stage.style.opacity = '1';
+      }
+    }
+
+    function renderMonsterCard(data) {
+      const p = data.profile;
+      const st = data.stats;
+      const ai = data.analysis;
+      const m = data.monster;
+      const mData = (ai.modes && ai.modes.spicy) || (ai.modes && ai.modes.normal) || {};
+      const brainList = mData.brain || [];
+
+      const outerFrame = document.getElementById('tcgOuterFrame');
+      outerFrame.className = 'tcg-card-outer tier-' + (m.rarity_tier || 'SSR');
+      markSecretUnlocked(m.dex_no, m);
+
+      document.getElementById('cRarity').textContent = m.rarity.split('（')[0];
+      document.getElementById('cSpecies').textContent = m.species;
+      document.getElementById('cHp').textContent = m.base_hp;
+      document.getElementById('cMonsterImg').src = m.image;
+      document.getElementById('cElementBadge').textContent = m.element.split('・')[0];
+      document.getElementById('cTrainerAvatar').src = p.avatar;
+      document.getElementById('cTrainerName').textContent = p.name;
+      document.getElementById('cTrainerId').textContent = `@${p.username}`;
+      document.getElementById('cScanCount').textContent = `⚡召喚完了`;
+
+      const cleanTitle = (ai.char_title || '').replace(/^『|』$/g, '');
+      const cleanUra = (ai.ura_adana || '').replace(/^『|』$/g, '');
+      document.getElementById('cAdanaMain').textContent = `『${cleanTitle}』`;
+      document.getElementById('cAdanaSub').textContent = '';
+
+      document.getElementById('cMove1Name').textContent = m.move1.name;
+      document.getElementById('cMove1Dmg').textContent = m.move1.power;
+      document.getElementById('cMove1Desc').textContent = m.move1.desc || '相手の弱点を突く先制攻撃！';
+
+      document.getElementById('cMove2Name').textContent = m.move2.name;
+      document.getElementById('cMove2Dmg').textContent = m.move2.power;
+      document.getElementById('cMove2Desc').textContent = m.move2.desc || '相手を一撃で戦闘不能にする超必殺技！';
+
+      // 脳内ミニバー
+      document.getElementById('cProofShort').textContent = `返信率${st.reply_ratio_pct}%`;
+      document.getElementById('cBrainBar').innerHTML = brainList.map(b =>
+        `<div style="width:${b.pct}%; background:${b.color || '#00f5a0'};"></div>`
+      ).join('');
+      document.getElementById('cBrainTags').innerHTML = brainList.slice(0, 3).map(b =>
+        `<span style="color:${b.color || '#00f5a0'};">●${clamp(b.label, 8)} ${b.pct}%</span>`
+      ).join('');
+
+      document.getElementById('cGoodFood').textContent = clamp((mData.good || [])[0] || '褒め言葉', 13);
+      document.getElementById('cWeakness').textContent = m.weakness;
+      document.getElementById('cFlavorText').textContent = `📖 図鑑解説：${clamp(ai.roast_comment, 82)}`;
+      updateMonetizeBanner(m, cleanTitle);
+
+      // 𝕏シェア文
+      const shareTxt = `私のSNSアカウント(@${p.username})をモンスター化したら…\n✨【${m.dex_no} ${m.species}（${m.rarity}）】が召喚された😂\n\n🏷️ 二つ名：『${cleanTitle}』\n💥 必殺技：${m.move2.name}（威力${m.move2.power}）\n\nみんなのアカウントは何モンスターになる？👇\n#SNSモンスターズ`;
+      document.getElementById('shareCardXBtn').href = `https://x.com/intent/tweet?text=${encodeURIComponent(shareTxt)}`;
+
+      drawPokemonCardCanvas(data);
+    }
+
+    // 🛒 全20種モンスター連動・写真付きラッキーアイテム（高校生〜大人まで一目で欲しくなるAmazon＆楽天物販カード）
+    const MONETIZE_ITEMS = {
+      fire: {
+        item: 'モンスターエナジー 355ml×24本 魔剤セット',
+        buff: '🔥 装備効果：論破スピード＆テンション＋120% UP！',
+        price: '¥4,580（1本あたり¥191）',
+        img: 'https://images.unsplash.com/photo-1622543925917-763c34d1a86e?w=300&auto=format&fit=crop&q=80',
+        q: 'モンスターエナジー+箱'
+      },
+      water: {
+        item: 'ゲーミング用ブルーライトカット超軽量メガネ',
+        buff: '💧 装備効果：深夜のレスバ＆画面見すぎの目疲れゼロ！',
+        price: '¥1,980',
+        img: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&auto=format&fit=crop&q=80',
+        q: 'ブルーライトカットメガネ+ゲーム'
+      },
+      electric: {
+        item: 'Anker ワイヤレス ノイズキャンセリングイヤホン',
+        buff: '⚡ 装備効果：深夜2時のゾーン集中力が3倍に覚醒！',
+        price: '¥5,990',
+        img: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=300&auto=format&fit=crop&q=80',
+        q: 'Anker+ワイヤレスイヤホン'
+      },
+      gold: {
+        item: 'HIKAKINプレミアム みそきん 濃厚味噌ラーメン',
+        buff: '🌟 装備効果：カリスマ運気＆テンションがMAX回復！',
+        price: '¥1,280〜',
+        img: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&auto=format&fit=crop&q=80',
+        q: 'みそきん+ラーメン'
+      },
+      grass: {
+        item: '知恵の輪＆ルービックキューブ 高速脳トレセット',
+        buff: '🌿 装備効果：ひらめきIQ＋50！スキマ時間に脳が覚醒',
+        price: '¥1,480',
+        img: 'https://images.unsplash.com/photo-1591991731833-b4807cf7ef94?w=300&auto=format&fit=crop&q=80',
+        q: 'ルービックキューブ+公式'
+      },
+      shadow: {
+        item: '360度覗き見防止 さらさらアンチグレアフィルム',
+        buff: '👻 装備効果：電車や教室でエゴサしても隣から絶対見えない！',
+        price: '¥1,180',
+        img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&auto=format&fit=crop&q=80',
+        q: 'iPhone+覗き見防止フィルム+アンチグレア'
+      },
+      fairy: {
+        item: 'Anker 小型モバイルバッテリー（推し活カラー）',
+        buff: '🧚 装備効果：SNS見すぎでも1日中充電切れゼロ！',
+        price: '¥2,990',
+        img: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=300&auto=format&fit=crop&q=80',
+        q: 'Anker+モバイルバッテリー+小型'
+      },
+      fighting: {
+        item: 'ザバス(SAVAS) リッチショコラ味 ホエイプロテイン 1kg',
+        buff: '🥊 装備効果：筋肉パワー＋200%！ジュース感覚で激ウマ',
+        price: '¥3,980',
+        img: 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=300&auto=format&fit=crop&q=80',
+        q: 'ザバス+ホエイプロテイン+リッチショコラ'
+      },
+      poison: {
+        item: '辛辛魚（からからうお）激辛カップ麺 詰め合わせ',
+        buff: '☠️ 装備効果：毒舌キレ味＋150%！クセになる旨辛刺激',
+        price: '¥1,680',
+        img: 'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=300&auto=format&fit=crop&q=80',
+        q: '辛辛魚+カップ麺'
+      },
+      gourmet: {
+        item: '宅麺.com 家二郎・濃厚背脂ニンニク豚ラーメンセット',
+        buff: '🍜 装備効果：深夜1時に食べると幸福度＋999%突破！',
+        price: '¥2,280',
+        img: 'https://images.unsplash.com/photo-1557872943-16a5ac26437e?w=300&auto=format&fit=crop&q=80',
+        q: '二郎系+ラーメン+お取り寄せ'
+      },
+      steel: {
+        item: 'ロジクール RGB光るゲーミングマウス 超軽量モデル',
+        buff: '🤖 装備効果：タイピング＆ゲーム操作速度が2.5倍に進化！',
+        price: '¥3,480',
+        img: 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=300&auto=format&fit=crop&q=80',
+        q: 'ロジクール+ゲーミングマウス'
+      },
+      sleep: {
+        item: '3秒で寝落ちする「とろける雲の着る毛布」フード付き',
+        buff: '💤 装備効果：おふとん防御力MAX！二度寝の幸福度3倍',
+        price: '¥2,980',
+        img: 'https://images.unsplash.com/photo-1580301762395-21ce84d00bc6?w=300&auto=format&fit=crop&q=80',
+        q: '着る毛布+ふわとろ'
+      },
+      ice: {
+        item: 'Ririmew（リリミュウ）指原莉乃プロデュース ツヤ肌コスメ',
+        buff: '❄️ 装備効果：自撮り＆ストーリーの透明感が一気に爆上がり！',
+        price: '¥1,870',
+        img: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&auto=format&fit=crop&q=80',
+        q: 'Ririmew+リリミュウ'
+      },
+      sound: {
+        item: 'JBL GO 4 お風呂で使える防水Bluetooth重低音スピーカー',
+        buff: '🎵 装備効果：自分の部屋とお風呂が一瞬でライブ会場に！',
+        price: '¥4,980',
+        img: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=300&auto=format&fit=crop&q=80',
+        q: 'JBL+防水+スピーカー'
+      },
+      mythic: {
+        item: '純金箔入り 黄金開運プレミアムタンブラー（箱付き）',
+        buff: '🌈 装備効果：バズ神のオーラで次の投稿のいいね数3倍！',
+        price: '¥3,280',
+        img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&auto=format&fit=crop&q=80',
+        q: 'ゴールド+タンブラー+プレゼント'
+      },
+      abyss: {
+        item: 'めぐリズム 蒸気でホットアイマスク 完熟ゆず 12枚入',
+        buff: '🌑 装備効果：深夜の裏アカ巡回で疲れた目を5分で全回復！',
+        price: '¥1,080',
+        img: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=300&auto=format&fit=crop&q=80',
+        q: 'めぐリズム+蒸気でホットアイマスク'
+      },
+      chrono: {
+        item: 'Xiaomi Smart Band 最新スマートウォッチ（LINE通知対応）',
+        buff: '⏳ 装備効果：睡眠スコアもSNS通知も手首で0.1秒チェック！',
+        price: '¥4,990',
+        img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&auto=format&fit=crop&q=80',
+        q: 'スマートウォッチ+Xiaomi+Smart+Band'
+      },
+      fortune: {
+        item: '黄金の100万円札束メモ帳＆開運ゴールドカードセット',
+        buff: '💎 装備効果：財布に入れておくだけで金運＆ネタウケ抜群！',
+        price: '¥980',
+        img: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?w=300&auto=format&fit=crop&q=80',
+        q: '開運+ゴールドカード+純金'
+      },
+      akasha: {
+        item: 'マンガでわかる！相手の心が9割読める行動心理学',
+        buff: '👁️ 装備効果：友だちや好きな人の本音が手に取るようにわかる！',
+        price: '¥1,320',
+        img: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&auto=format&fit=crop&q=80',
+        q: 'マンガでわかる+心理学'
+      },
+      omega: {
+        item: '【0.001%創世神記念】光るレインボーゲーミングLEDライト',
+        buff: '🪐 装備効果：部屋が創世神オメガの7色プリズム空間に進化！',
+        price: '¥2,180',
+        img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300&auto=format&fit=crop&q=80',
+        q: 'ゲーミング+LEDテープライト+RGB'
+      }
+    };
+
+    // 💰 収益化設定（Amazonタグ・楽天ID・忍者AdMax・クリック計測）管理エンジン
+    let monetizeConfig = {
+      amazon_tag: 'snsmonster-22',
+      rakuten_id: '',
+      admax_html: '',
+      clicks: { total: 0, amazon: 0, rakuten: 0 }
+    };
+
+    // 🔥 24時間クッキー発動率を3倍に引き上げる「ついで買い鉄板トレンド枠」マスター
+    const SUB_IMPULSE_ITEMS = [
+      {
+        title: 'Amazonギフトカード チャージタイプ（ポイント還元）',
+        tag: '🎁 1番人気',
+        price: '¥1,000〜',
+        img: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=240&auto=format&fit=crop&q=80',
+        q: 'Amazonギフトカード+チャージ'
+      },
+      {
+        title: 'レッドブル エナジードリンク 250ml×24本 まとめ買い',
+        tag: '🔥 28%OFF級',
+        price: '¥3,980',
+        img: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=240&auto=format&fit=crop&q=80',
+        q: 'レッドブル+24本'
+      },
+      {
+        title: 'Apple AirTag / スマホ紛失防止スマートトラッカー',
+        tag: '⚡ SNS話題',
+        price: '¥4,780',
+        img: 'https://images.unsplash.com/photo-1620288627223-53302f4e8c74?w=240&auto=format&fit=crop&q=80',
+        q: 'AirTag+スマートトラッカー'
+      },
+      {
+        title: 'リンツ (Lindt) リンドール チョコレート 詰め合わせ',
+        tag: '🍫 ご褒美1位',
+        price: '¥2,980',
+        img: 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=240&auto=format&fit=crop&q=80',
+        q: 'リンツ+リンドール+チョコレート'
+      }
+    ];
+
+    function buildAmazonAffiliateUrl(queryStr) {
+      const q = encodeURIComponent(queryStr.replace(/\+/g, ' '));
+      const tag = (monetizeConfig.amazon_tag || '').trim();
+      return tag
+        ? `https://www.amazon.co.jp/s?k=${q}&tag=${encodeURIComponent(tag)}`
+        : `https://www.amazon.co.jp/s?k=${q}`;
+    }
+
+    function buildRakutenAffiliateUrl(queryStr) {
+      const q = encodeURIComponent(queryStr.replace(/\+/g, ' '));
+      const targetUrl = `https://search.rakuten.co.jp/search/mall/${q}/`;
+      const rakId = (monetizeConfig.rakuten_id || '').trim();
+      return rakId
+        ? `https://hb.afl.rakuten.co.jp/hgc/${encodeURIComponent(rakId)}/?pc=${encodeURIComponent(targetUrl)}&m=${encodeURIComponent(targetUrl)}`
+        : targetUrl;
+    }
+
+    async function loadMonetizeConfigFromServer() {
+      const isStaticHost = window.location.hostname.endsWith('github.io') || window.location.hostname.endsWith('pages.dev');
+      try {
+        if (!isStaticHost) {
+          const res = await fetch('/api/monetize');
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.ok && data.config) {
+              monetizeConfig = data.config;
+            }
+          }
+        } else {
+          const res = await fetch('monetize_config.json');
+          if (res.ok) {
+            const cfg = await res.json();
+            if (cfg) monetizeConfig = Object.assign(monetizeConfig, cfg);
+          }
+        }
+        // ブラウザ保存のオーナー設定があれば上書き反映
+        const localSaved = localStorage.getItem('sns_monsters_owner_monetize');
+        if (localSaved) {
+          const parsed = JSON.parse(localSaved);
+          if (parsed.amazon_tag) monetizeConfig.amazon_tag = parsed.amazon_tag;
+          if (parsed.rakuten_id) monetizeConfig.rakuten_id = parsed.rakuten_id;
+          if (parsed.admax_html) monetizeConfig.admax_html = parsed.admax_html;
+        }
+      } catch (e) {}
+      syncMonetizeStatusUI();
+      if (player1Data && player1Data.monster) {
+        updateMonetizeBanner(player1Data.monster);
+      } else {
+        renderSubImpulseItems('fire');
+      }
+    }
+
+    function syncMonetizeStatusUI() {
+      const badge = document.getElementById('monetizeLiveBadge');
+      const hasAmz = Boolean((monetizeConfig.amazon_tag || '').trim());
+      const hasRak = Boolean((monetizeConfig.rakuten_id || '').trim());
+      const clicks = (monetizeConfig.clicks && monetizeConfig.clicks.total) || 0;
+      if (badge) {
+        if (hasAmz || hasRak) {
+          badge.style.background = 'rgba(0,245,160,0.18)';
+          badge.style.borderColor = 'var(--mint)';
+          badge.style.color = 'var(--mint)';
+          badge.textContent = `🟢 収益化稼働中（累計${clicks}クリック）`;
+        } else {
+          badge.style.background = 'rgba(255,209,102,0.16)';
+          badge.style.borderColor = 'var(--gold)';
+          badge.style.color = 'var(--gold)';
+          badge.textContent = `⚙️ タップで自分の口座IDを設定（累計${clicks}クリック）`;
+        }
+      }
+      const amzC = document.getElementById('statAmzClicks');
+      const rakC = document.getElementById('statRakClicks');
+      if (amzC) amzC.textContent = `${(monetizeConfig.clicks && monetizeConfig.clicks.amazon) || 0}回`;
+      if (rakC) rakC.textContent = `${(monetizeConfig.clicks && monetizeConfig.clicks.rakuten) || 0}回`;
+
+      const customSlot = document.getElementById('customAdSlot');
+      const rawAd = (monetizeConfig.admax_html || '').trim();
+      if (customSlot) {
+        if (rawAd) {
+          customSlot.style.display = 'block';
+          customSlot.innerHTML = rawAd;
+        } else {
+          customSlot.style.display = 'none';
+          customSlot.innerHTML = '';
+        }
+      }
+    }
+
+    function renderSubImpulseItems(seedKey) {
+      const grid = document.getElementById('subItemsGrid');
+      if (!grid) return;
+      const offset = (seedKey ? seedKey.length : 0) % SUB_IMPULSE_ITEMS.length;
+      const picks = [
+        SUB_IMPULSE_ITEMS[offset % SUB_IMPULSE_ITEMS.length],
+        SUB_IMPULSE_ITEMS[(offset + 1) % SUB_IMPULSE_ITEMS.length]
+      ];
+      grid.innerHTML = picks.map(it => {
+        const amzUrl = buildAmazonAffiliateUrl(it.q);
+        const rakUrl = buildRakutenAffiliateUrl(it.q);
+        return `
+          <div style="background:rgba(7,10,18,0.82); border:1px solid rgba(255,255,255,0.14); border-radius:12px; padding:8px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div style="display:flex; gap:7px; align-items:center; margin-bottom:6px;">
+              <img src="${it.img}" alt="item" style="width:48px; height:48px; border-radius:9px; object-fit:cover; border:1px solid var(--gold); flex-shrink:0; background:#fff;" />
+              <div style="min-width:0;">
+                <span style="font-size:0.58rem; font-weight:900; color:var(--gold); background:rgba(255,209,102,0.15); padding:1px 5px; border-radius:4px;">${it.tag}</span>
+                <div style="font-size:0.72rem; font-weight:900; color:#fff; line-height:1.25; margin-top:2px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${it.title}</div>
+                <div style="font-size:0.7rem; font-weight:900; color:#ff6b81;">${it.price}</div>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+              <a href="${amzUrl}" target="_blank" rel="noopener noreferrer" onclick="trackAffiliateClick('amazon')" style="background:#ff9900; color:#070a12; text-decoration:none; font-size:0.65rem; font-weight:900; padding:5px 2px; border-radius:7px; text-align:center;">Amazon</a>
+              <a href="${rakUrl}" target="_blank" rel="noopener noreferrer" onclick="trackAffiliateClick('rakuten')" style="background:#bf0000; color:#fff; text-decoration:none; font-size:0.65rem; font-weight:900; padding:5px 2px; border-radius:7px; text-align:center;">楽天市場</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateMonetizeBanner(m, cleanTitle) {
+      const cfg = MONETIZE_ITEMS[m.element_key] || MONETIZE_ITEMS.fire;
+      document.getElementById('adDynamicText').textContent =
+        `🎒 『${m.species}』タイプの専用ラッキー装備ショップ`;
+      const imgEl = document.getElementById('affItemImg');
+      const buffEl = document.getElementById('affItemBuff');
+      const nameEl = document.getElementById('affAmazonLabel');
+      const priceEl = document.getElementById('affItemPrice');
+      const amzBtn = document.getElementById('affAmazonBtn');
+      const rakBtn = document.getElementById('affRakutenBtn');
+
+      if (imgEl) imgEl.src = cfg.img;
+      if (buffEl) buffEl.textContent = cfg.buff;
+      if (nameEl) nameEl.textContent = cfg.item;
+      if (priceEl) priceEl.textContent = `参考 ${cfg.price}`;
+      if (amzBtn) amzBtn.href = buildAmazonAffiliateUrl(cfg.q);
+      if (rakBtn) rakBtn.href = buildRakutenAffiliateUrl(cfg.q);
+      renderSubImpulseItems(m.element_key);
+    }
+
+    async function trackAffiliateClick(network) {
+      try {
+        const res = await fetch('/api/click', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ network })
+        });
+        const data = await res.json();
+        if (data && data.ok && data.clicks) {
+          monetizeConfig.clicks = data.clicks;
+          syncMonetizeStatusUI();
+        }
+      } catch (e) {}
+    }
+
+    function openMonetizeModal() {
+      document.getElementById('cfgAmazonTag').value = monetizeConfig.amazon_tag || '';
+      document.getElementById('cfgRakutenId').value = monetizeConfig.rakuten_id || '';
+      document.getElementById('cfgAdmaxHtml').value = monetizeConfig.admax_html || '';
+      syncMonetizeStatusUI();
+      document.getElementById('monetizeModal').classList.add('open');
+    }
+
+    function closeMonetizeModal() {
+      document.getElementById('monetizeModal').classList.remove('open');
+    }
+
+    async function saveMonetizeSettings() {
+      const amazon_tag = document.getElementById('cfgAmazonTag').value.trim();
+      const rakuten_id = document.getElementById('cfgRakutenId').value.trim();
+      const admax_html = document.getElementById('cfgAdmaxHtml').value.trim();
+      try {
+        const res = await fetch('/api/monetize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amazon_tag, rakuten_id, admax_html })
+        });
+        const data = await res.json();
+        if (data && data.ok) {
+          monetizeConfig = data.config;
+          syncMonetizeStatusUI();
+          if (player1Data && player1Data.monster) {
+            updateMonetizeBanner(player1Data.monster);
+          } else {
+            renderSubImpulseItems('fire');
+          }
+          closeMonetizeModal();
+          alert('💰 収益IDを保存しました！\nサイト内の全20モンスターの商品ボタン（Amazon・楽天）にあなたの紹介タグが自動セットされました🎉');
+        }
+      } catch (e) {
+        alert('保存エラー: ' + e.message);
+      }
+    }
+
+    // 📋 1タップでバズ投稿文をクリップボードにコピー
+    function copyViralTemplate(mode) {
+      const siteUrl = window.location.origin;
+      let text = '';
+      if (mode === 'battle' && player1Data && player2Data) {
+        const p1 = player1Data.profile;
+        const p2 = player2Data.profile;
+        const m1 = player1Data.monster;
+        const m2 = player2Data.monster;
+        const winnerName = b2CurHp <= 0 ? p1.name : (b1CurHp <= 0 ? p2.name : p1.name);
+        const winMove = b2CurHp <= 0 ? m1.move2.name : (b1CurHp <= 0 ? m2.move2.name : m1.move2.name);
+        text = `【宿命の対決】${p1.name} vs ${p2.name} を『SNSモンスターズ』で戦わせてみた結果……\nまさかの【${winnerName}】が必殺技「${winMove}」でワンパン勝利www😂\n\nこれアカウント同士で戦わせられるの面白すぎるw みんなは誰と誰を戦わせたい？👇\n${siteUrl}\n#SNSモンスターズ`;
+      } else if (player1Data) {
+        const p = player1Data.profile;
+        const m = player1Data.monster;
+        const cleanTitle = (player1Data.analysis.char_title || '').replace(/^『|』$/g, '');
+        text = `${p.name}さんをAIでモンスターカード化したら、二つ名『${cleanTitle}』＆必殺技「${m.move2.name}（威力${m.move2.power}）」が本人すぎて腹筋崩壊したwww😂\n\nしかも10万人に1人（0.001%）しか出ない虹色の『🪐創世神オメガ』があるらしいんだけど出た猛者いる？？👇\n${siteUrl}\n#SNSモンスターズ`;
+      }
+      if (navigator.clipboard && text) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert('📋 バズ投稿文をコピーしました！\n保存したカード画像（またはVS対決画像）と一緒にXへ貼り付けて投稿してください🔥');
+        }).catch(() => {
+          prompt('以下のバズ投稿文をコピーしてください：', text);
+        });
+      } else {
+        prompt('以下のバズ投稿文をコピーしてください：', text);
+      }
+    }
+
+    // 📸 VS対決ポスター画像（1200×675 X横長黄金比）を生成＆モーダル表示
+    let loadedOppMonsterImg = null;
+    async function openVsPosterModal() {
+      if (!player1Data || !player2Data) return;
+      if (!loadedMonsterImg) loadedMonsterImg = await loadImg(player1Data.monster.image);
+      loadedOppMonsterImg = await loadImg(player2Data.monster.image);
+      drawVsPosterCanvas();
+      document.getElementById('vsPosterModal').classList.add('open');
+    }
+    function closeVsPosterModal() {
+      document.getElementById('vsPosterModal').classList.remove('open');
+    }
+
+    function drawVsPosterCanvas() {
+      const canvas = document.getElementById('vsPosterCanvas');
+      const ctx = canvas.getContext('2d');
+      const W = 1200, H = 675;
+      canvas.width = W;
+      canvas.height = H;
+
+      const p1 = player1Data.profile, m1 = player1Data.monster, a1 = player1Data.analysis;
+      const p2 = player2Data.profile, m2 = player2Data.monster, a2 = player2Data.analysis;
+      const t1 = (a1.char_title || '').replace(/^『|』$/g, '');
+      const t2 = (a2.char_title || '').replace(/^『|』$/g, '');
+
+      // 背景（左：1Pカラー、右：2Pカラーの稲妻スプリット）
+      const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+      bgGrad.addColorStop(0, '#1e0b18');
+      bgGrad.addColorStop(0.5, '#0b1021');
+      bgGrad.addColorStop(1, '#071b26');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      drawRoundRect(ctx, 16, 16, W - 32, H - 32, 28, null, '#ffd166', 5);
+
+      // トップバナー
+      drawRoundRect(ctx, 320, 28, 560, 54, 27, 'rgba(255,209,102,0.18)', '#ffd166', 2);
+      ctx.textAlign = 'center';
+      ctx.font = '900 28px "M PLUS Rounded 1c", "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffd166';
+      ctx.fillText('⚔️ SNSモンスターズ 宿命の決闘アリーナ ⚔️', W / 2, 65);
+
+      // 左カード（1P）
+      drawRoundRect(ctx, 45, 100, 495, 455, 24, '#121829', '#00f5a0', 4);
+      if (loadedMonsterImg) {
+        ctx.save();
+        drawRoundRect(ctx, 65, 165, 455, 240, 16, null, null);
+        ctx.clip();
+        ctx.drawImage(loadedMonsterImg, 65, 165, 455, 240);
+        ctx.restore();
+      }
+      ctx.textAlign = 'left';
+      ctx.font = '900 26px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#00f5a0';
+      ctx.fillText(`【1P】${clamp(p1.name, 12)} (@${p1.username})`, 65, 145);
+      ctx.font = '900 32px "M PLUS Rounded 1c", "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`${m1.dex_no} ${m1.species}`, 65, 445);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#ffd166';
+      ctx.fillText(`HP ${m1.base_hp}`, 520, 445);
+      ctx.textAlign = 'left';
+      ctx.font = '900 21px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffd166';
+      ctx.fillText(`🏷️ 『${clamp(t1, 15)}』`, 65, 485);
+      ctx.fillStyle = '#ff8fa3';
+      ctx.fillText(`💥 必殺：${clamp(m1.move2.name, 16)} (${m1.move2.power})`, 65, 522);
+
+      // 右カード（2P）
+      drawRoundRect(ctx, 660, 100, 495, 455, 24, '#121829', '#ff3b5c', 4);
+      if (loadedOppMonsterImg) {
+        ctx.save();
+        drawRoundRect(ctx, 680, 165, 455, 240, 16, null, null);
+        ctx.clip();
+        ctx.drawImage(loadedOppMonsterImg, 680, 165, 455, 240);
+        ctx.restore();
+      }
+      ctx.textAlign = 'left';
+      ctx.font = '900 26px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ff6b81';
+      ctx.fillText(`【2P】${clamp(p2.name, 12)} (@${p2.username})`, 680, 145);
+      ctx.font = '900 32px "M PLUS Rounded 1c", "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`${m2.dex_no} ${m2.species}`, 680, 445);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#ffd166';
+      ctx.fillText(`HP ${m2.base_hp}`, 1135, 445);
+      ctx.textAlign = 'left';
+      ctx.font = '900 21px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffd166';
+      ctx.fillText(`🏷️ 『${clamp(t2, 15)}』`, 680, 485);
+      ctx.fillStyle = '#ff8fa3';
+      ctx.fillText(`💥 必殺：${clamp(m2.move2.name, 16)} (${m2.move2.power})`, 680, 522);
+
+      // 中央 VS エンブレム
+      ctx.beginPath();
+      ctx.arc(W / 2, 325, 54, 0, Math.PI * 2);
+      ctx.fillStyle = '#ff3b5c';
+      ctx.fill();
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = '#ffd166';
+      ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.font = '900 44px "M PLUS Rounded 1c", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('VS', W / 2, 342);
+
+      // 下部勝敗・挑発バー
+      drawRoundRect(ctx, 45, 575, W - 90, 68, 18, 'rgba(255,59,92,0.22)', '#ffd166', 2);
+      ctx.textAlign = 'center';
+      ctx.font = '900 26px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      const winHeadline = document.getElementById('battleWinnerHeadline').textContent ||
+        `🔥 宿命の対決：${clamp(p1.name, 10)} vs ${clamp(p2.name, 10)} 勝つのはどっちだ！？`;
+      ctx.fillText(`${winHeadline}  ｜  #SNSモンスターズ`, W / 2, 619);
+
+      document.getElementById('generatedVsImg').src = canvas.toDataURL('image/png');
+    }
+
+    async function shareVsImageNative() {
+      const canvas = document.getElementById('vsPosterCanvas');
+      if (!canvas || !player1Data || !player2Data) return;
+      const u1 = player1Data.profile.username;
+      const u2 = player2Data.profile.username;
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `sns_vs_${u1}_${u2}.png`, { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: 'SNSモンスターズ対決',
+              text: `⚔️ @${u1} vs @${u2} のモンスター対決！ #SNSモンスターズ`,
+              files: [file]
+            });
+            return;
+          } catch (e) {}
+        }
+        const a = document.createElement('a');
+        a.download = `sns_vs_${u1}_${u2}.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      }, 'image/png');
+    }
+
+    // ⚔️ バトルアリーナ連携
+    function syncFighter1P(data) {
+      const m = data.monster;
+      b1MaxHp = m.base_hp;
+      b1CurHp = b1MaxHp;
+      document.getElementById('b1Img').src = m.image;
+      document.getElementById('b1Species').textContent = m.species;
+      document.getElementById('b1Trainer').textContent = `@${data.profile.username}`;
+      document.getElementById('cmdMove1Name').textContent = `${m.move1.name}（威力${m.move1.power}）`;
+      document.getElementById('cmdMove2Name').textContent = m.move2.name;
+      const ultBtn = document.getElementById('mainUltBtn');
+      if (ultBtn) {
+        ultBtn.innerHTML = `💥 必殺ワザ「${m.move2.name}」で攻撃！（威力${m.move2.power}）`;
+      }
+      updateHpUI();
+    }
+
+    async function loadOpponent(handle, plat) {
+      document.querySelectorAll('.opp-pill').forEach(el => el.classList.remove('active'));
+      const oppPill = document.getElementById('opp-pill-' + handle);
+      if (oppPill) oppPill.classList.add('active');
+
+      const data = await fetchAnalyzeData(handle, plat || 'x');
+      if (data && data.ok) {
+        player2Data = data;
+        const m = data.monster;
+        b2MaxHp = m.base_hp;
+        b2CurHp = b2MaxHp;
+        b1CurHp = b1MaxHp;
+        document.getElementById('b2Img').src = resolveAssetPath(m.image);
+        document.getElementById('b2Species').textContent = m.species;
+        document.getElementById('b2Trainer').textContent = `@${data.profile.username}`;
+        document.getElementById('battleWinBanner').classList.remove('active');
+        document.getElementById('battleLogBox').innerHTML =
+          `🔥 <strong>@${data.profile.username}（${m.species}）</strong> が登場！下の攻撃ワザボタンでぶっ飛ばせ！`;
+        updateHpUI();
+      }
+    }
+
+    function summonRandomOpponentQuick() {
+      const pool = ['hikakin', 'ariyoshihiroiki', 'hirox246', 'takapon_jp', 'sugita_lovin', '345__chan', 'kinnikun0917', 'ore825', 'H_KANNA_0203', 'ado1024imokenp', 'aNo2mass', 'MatsukawaRyo', 'chrono_king', 'buzz_god', 'ura_maou'];
+      const curOpp = (player2Data && player2Data.profile && player2Data.profile.username) || '';
+      const filtered = pool.filter(h => h.toLowerCase() !== curOpp.toLowerCase());
+      const pick = filtered[Math.floor(Math.random() * filtered.length)] || 'hirox246';
+      loadOpponent(pick, 'x');
+    }
+
+    function summonCustomOpponent() {
+      const inp = document.getElementById('oppInput');
+      const val = cleanHandleInput(inp ? inp.value : '');
+      if (!val) {
+        if (inp) inp.focus();
+        return;
+      }
+      inp.value = val;
+      toggleClearBtn('oppInput', 'clearOppBtn');
+      loadOpponent(val, 'x');
+    }
+
+    function showDmgPopup(id, dmg) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = `-${dmg}`;
+      el.classList.remove('boom');
+      void el.offsetWidth;
+      el.classList.add('boom');
+    }
+
+    function updateHpUI() {
+      const pct1 = Math.max(0, Math.round((b1CurHp / b1MaxHp) * 100));
+      const pct2 = Math.max(0, Math.round((b2CurHp / b2MaxHp) * 100));
+      const bar1 = document.getElementById('b1HpBar');
+      const bar2 = document.getElementById('b2HpBar');
+      bar1.style.width = pct1 + '%';
+      bar2.style.width = pct2 + '%';
+      bar1.style.background = pct1 < 30 ? '#ff3b5c' : '#00f5a0';
+      bar2.style.background = pct2 < 30 ? '#ff3b5c' : '#00f5a0';
+      document.getElementById('b1HpText').textContent = `HP ${b1CurHp}`;
+      document.getElementById('b2HpText').textContent = `HP ${b2CurHp}`;
+    }
+
+    function executeTurn(moveIdx) {
+      if (!player1Data || !player2Data) return;
+      if (b1CurHp <= 0 || b2CurHp <= 0) {
+        b1CurHp = b1MaxHp;
+        b2CurHp = b2MaxHp;
+        document.getElementById('battleWinBanner').classList.remove('active');
+      }
+      const m1 = player1Data.monster;
+      const m2 = player2Data.monster;
+      const move = moveIdx === 2 ? m1.move2 : m1.move1;
+      const cleanMoveName = move.name.replace(/^必殺・/, '');
+
+      // 1Pの攻撃（moveIdx === 2 のときはドパガキ快感のワンパン特大ダメージ！）
+      const mult = moveIdx === 2 ? 1.55 : 0.85;
+      const dmg1 = Math.round(move.power * mult);
+      b2CurHp = Math.max(0, b2CurHp - dmg1);
+
+      const pod2 = document.getElementById('pod2P');
+      pod2.classList.remove('hit-shake');
+      void pod2.offsetWidth;
+      pod2.classList.add('hit-shake');
+      showDmgPopup('dmgPop2', dmg1);
+      updateHpUI();
+
+      const logBox = document.getElementById('battleLogBox');
+      if (b2CurHp <= 0) {
+        finishBattle(true, cleanMoveName, dmg1);
+        return;
+      }
+
+      // 2Pの反撃
+      setTimeout(() => {
+        const oppMove = m2.move1;
+        const dmg2 = Math.round(oppMove.power * 0.75);
+        b1CurHp = Math.max(0, b1CurHp - dmg2);
+        const pod1 = document.getElementById('pod1P');
+        pod1.classList.remove('hit-shake');
+        void pod1.offsetWidth;
+        pod1.classList.add('hit-shake');
+        showDmgPopup('dmgPop1', dmg2);
+        updateHpUI();
+
+        if (b1CurHp <= 0) {
+          finishBattle(false, oppMove.name.replace(/^必殺・/, ''), dmg2);
+        } else {
+          logBox.innerHTML =
+            `⚡ <strong>${cleanMoveName}</strong> で <strong>${dmg1}ダメージ</strong>！もう一発でトドメだ！`;
+        }
+      }, 360);
+    }
+
+    function runAuto3TurnBattle() {
+      executeTurn(2);
+    }
+
+    function finishBattle(isPlayerWin, finishMove, lastDmg) {
+      const m1 = player1Data.monster;
+      const m2 = player2Data.monster;
+      const u1 = player1Data.profile.username;
+      const u2 = player2Data.profile.username;
+      const banner = document.getElementById('battleWinBanner');
+      const head = document.getElementById('battleWinnerHeadline');
+      const reason = document.getElementById('battleFinishReason');
+      const logBox = document.getElementById('battleLogBox');
+
+      if (isPlayerWin) {
+        logBox.innerHTML = `💥 <strong>${finishMove}（-${lastDmg}）</strong> 炸裂！一撃K.O.！！`;
+        head.textContent = `🏆 YOU WIN!! @${u1} 勝利！`;
+        reason.textContent = `💥 必殺「${finishMove}」で @${u2} をワンパン撃破！`;
+      } else {
+        logBox.innerHTML = `💀 相手の「${finishMove}」でK.O.された…`;
+        head.textContent = `💀 YOU LOSE...`;
+        reason.textContent = `@${u2} の「${finishMove}」に敗北…`;
+      }
+
+      const shareBattleTxt = `⚔️【SNSモンスターズ決闘結果】\n@${u1} の『${m1.species}』 🆚 @${u2} の『${m2.species}』\n\n👉 ${head.textContent}\n💥 ${reason.textContent}\n\nあなたのアカウントは何モンスターになる？👇\n#SNSモンスターズ`;
+      document.getElementById('shareBattleXBtn').href =
+        `https://x.com/intent/tweet?text=${encodeURIComponent(shareBattleTxt)}`;
+      banner.classList.add('active');
+    }
+
+    // 📸 ポケカ風PNG画像のCanvas描画
+    function drawRoundRect(ctx, x, y, w, h, r, fill, stroke, lineW = 2) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+      if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+      if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lineW; ctx.stroke(); }
+    }
+
+    function drawPokemonCardCanvas(data) {
+      const canvas = document.getElementById('shareCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 960;
+      canvas.height = 1320;
+      const W = 960, H = 1320;
+
+      const p = data.profile;
+      const st = data.stats;
+      const ai = data.analysis;
+      const m = data.monster;
+      const cleanTitle = (ai.char_title || '').replace(/^『|』$/g, '');
+
+      // ゴールド外枠グラデーション
+      const frameGrad = ctx.createLinearGradient(0, 0, W, H);
+      frameGrad.addColorStop(0, '#ffe066');
+      frameGrad.addColorStop(0.5, '#ff3b5c');
+      frameGrad.addColorStop(1, '#00d2ff');
+      ctx.fillStyle = frameGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      drawRoundRect(ctx, 26, 26, W - 52, H - 52, 38, '#101626', '#ffd166', 4);
+
+      // 1. ヘッダー（種族名＆HP）
+      ctx.textAlign = 'left';
+      ctx.font = '900 44px "M PLUS Rounded 1c", "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`${m.dex_no} ${m.species}`, 65, 98);
+
+      ctx.textAlign = 'right';
+      ctx.font = '900 48px "M PLUS Rounded 1c", "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffd166';
+      ctx.fillText(`HP ${m.base_hp}`, W - 65, 98);
+
+      // 2. モンスターイラスト枠
+      drawRoundRect(ctx, 62, 124, W - 124, 520, 26, '#070a12', '#ffd166', 6);
+      if (loadedMonsterImg) {
+        ctx.save();
+        drawRoundRect(ctx, 65, 127, W - 130, 514, 24, null, null);
+        ctx.clip();
+        ctx.drawImage(loadedMonsterImg, 65, 127, W - 130, 514);
+        ctx.restore();
+      }
+
+      // レア度＆属性バッジ
+      drawRoundRect(ctx, 88, 150, 420, 48, 24, 'rgba(7,10,18,0.88)', '#ffd166', 2);
+      ctx.textAlign = 'left';
+      ctx.font = '900 24px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffd166';
+      ctx.fillText(`${m.element} ｜ ${m.rarity}`, 110, 183);
+
+      // トレーナーバー
+      drawRoundRect(ctx, 88, 562, W - 176, 64, 18, 'rgba(7,10,18,0.9)', 'rgba(255,255,255,0.3)', 2);
+      ctx.font = '900 26px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`トレーナー：${clamp(p.name, 14)} (@${p.username})`, 112, 603);
+
+      // 3. 二つ名リボン
+      drawRoundRect(ctx, 62, 666, W - 124, 88, 20, 'rgba(255,209,102,0.16)', '#ffd166', 2);
+      ctx.textAlign = 'center';
+      ctx.font = '900 38px "M PLUS Rounded 1c", "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffd166';
+      ctx.fillText(`『${cleanTitle}』`, W / 2, 724);
+
+      // 4. 攻撃ワザ2つ（一目で攻撃とわかるラベル＋攻撃力＋1行解説）
+      drawRoundRect(ctx, 62, 776, W - 124, 152, 22, '#070a12', 'rgba(255,209,102,0.45)', 2);
+      ctx.textAlign = 'left';
+      ctx.font = '900 22px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffd166';
+      ctx.fillText(`【⚡通常攻撃ワザ】`, 86, 816);
+      ctx.font = '900 34px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`${m.move1.name}`, 90, 862);
+      ctx.textAlign = 'right';
+      ctx.font = '900 32px "M PLUS Rounded 1c", "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffd166';
+      ctx.fillText(`攻撃力 ${m.move1.power}`, W - 90, 860);
+      ctx.textAlign = 'left';
+      ctx.font = '700 22px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText(clamp(m.move1.desc || '', 32), 90, 904);
+
+      drawRoundRect(ctx, 62, 948, W - 124, 152, 22, '#070a12', '#ff3b5c', 3);
+      ctx.textAlign = 'left';
+      ctx.font = '900 22px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ff8fa3';
+      ctx.fillText(`【💥必殺ワザ】`, 86, 988);
+      ctx.font = '900 34px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`${m.move2.name}`, 90, 1034);
+      ctx.textAlign = 'right';
+      ctx.font = '900 34px "M PLUS Rounded 1c", "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#ff3b5c';
+      ctx.fillText(`攻撃力 ${m.move2.power}`, W - 90, 1032);
+      ctx.textAlign = 'left';
+      ctx.font = '700 22px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#fda4af';
+      ctx.fillText(clamp(m.move2.desc || '', 32), 90, 1076);
+
+      // 5. フッター
+      ctx.textAlign = 'center';
+      ctx.font = '900 28px "Noto Sans JP", sans-serif';
+      ctx.fillStyle = '#00f5a0';
+      ctx.fillText(`⚔️ #SNSモンスターズ`, W / 2, 1185);
+
+      document.getElementById('generatedCardImg').src = canvas.toDataURL('image/png');
+    }
+
+    function openShareCardModal() { document.getElementById('shareModal').classList.add('open'); }
+    function closeShareCardModal() { document.getElementById('shareModal').classList.remove('open'); }
+
+    async function shareCardImageNative() {
+      const canvas = document.getElementById('shareCanvas');
+      if (!canvas || !player1Data) return;
+      const p = player1Data.profile;
+      const m = player1Data.monster;
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `sns_monster_${p.username}.png`, { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: 'SNSモンスターズ',
+              text: `@${p.username} の召喚獣は『${m.species}（${m.rarity}）』！ #SNSモンスターズ`,
+              files: [file]
+            });
+            return;
+          } catch (e) {}
+        }
+        const a = document.createElement('a');
+        a.download = `sns_monster_${p.username}.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      }, 'image/png');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadMonetizeConfigFromServer();
+      renderSubImpulseItems('fire');
+      renderDexGrid();
+      quickSummon('ariyoshihiroiki', 'x');
+      loadOpponent('hikakin', 'x');
+    });
+  </script>
+</body>
+</html>

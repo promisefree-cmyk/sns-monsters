@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🔒 管理者ダッシュボード｜SNSモンスターズ</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800;900&family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #070a12;
+      --card: #121829;
+      --gold: #ffd166;
+      --mint: #00f5a0;
+      --fire: #ff3b5c;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1e1338 0%, #070a12 70%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 18px 14px 50px;
+    }
+    .wrap {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .head-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .title {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--gold);
+    }
+    .back-link {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 900;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .panel {
+      background: var(--card);
+      border: 2px solid rgba(255, 209, 102, 0.5);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .kpi-box {
+      background: #070a12;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 12px;
+      padding: 10px 6px;
+    }
+    .kpi-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+    .kpi-val {
+      font-size: 1.2rem;
+      font-weight: 900;
+    }
+    .field {
+      margin-bottom: 12px;
+    }
+    .field-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .field-head label {
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+    .field-head a {
+      font-size: 0.68rem;
+      color: var(--gold);
+      font-weight: 900;
+    }
+    input, textarea {
+      width: 100%;
+      background: #070a12;
+      border: 1.5px solid rgba(255,255,255,0.22);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: inherit;
+    }
+    .save-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #00f5a0, #00d2ff);
+      color: #070a12;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,245,160,0.35);
+    }
+    .status-pill {
+      display: inline-block;
+      background: rgba(0,245,160,0.18);
+      border: 1px solid var(--mint);
+      color: var(--mint);
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head-bar">
+      <div class="title">🔒 オーナー収益管理ページ</div>
+      <a class="back-link" href="./">👈 表のゲーム画面へ</a>
+    </div>
+
+    <div class="panel">
+      <div id="statusBadge" class="status-pill">🟢 収益化稼働中（snsmonster-22）</div>
+      <div style="font-size:0.74rem; color:#cbd5e1; margin-bottom:12px; line-height:1.5;">
+        ※このページ（<code>/admin</code>）はオーナー専用です。一般のゲーム画面には一切表示されません。
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <div class="kpi-label">🛒 Amazonクリック</div>
+          <div id="amzClicks" class="kpi-val" style="color:#ff9900;">0回</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">🛍️ 楽天クリック</div>
+          <div id="rakClicks" class="kpi-val" style="color:#ff3b5c;">0回</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">📊 合計クリック</div>
+          <div id="totalClicks" class="kpi-val" style="color:var(--mint);">0回</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-head">
+          <label style="color:#ff9900;">① AmazonアソシエイトID</label>
+          <a href="https://affiliate.amazon.co.jp/" target="_blank" rel="noopener">管理画面を開く ↗</a>
+        </div>
+        <input id="amazonTag" type="text" placeholder="例: snsmonster-22" />
+      </div>
+
+      <div class="field">
+        <div class="field-head">
+          <label style="color:#ff3b5c;">② 楽天アフィリエイトID（審査なし）</label>
+          <a href="https://affiliate.rakuten.co.jp/user/ual_id.html" target="_blank" rel="noopener">自分の楽天IDを確認 ↗</a>
+        </div>
+        <input id="rakutenId" type="text" placeholder="例: 1a2b3c4d.5e6f7g8h.1a2b3c4d.5e6f7g8h" />
+      </div>
+
+      <div class="field">
+        <div class="field-head">
+          <label style="color:var(--mint);">③ 忍者AdMax / AdSense 広告コード</label>
+          <a href="https://www.ninja.co.jp/admax/" target="_blank" rel="noopener">忍者AdMax ↗</a>
+        </div>
+        <textarea id="admaxHtml" rows="3" placeholder="<script>...</script> を貼ると表のゲーム下部に自動表示されます"></textarea>
+      </div>
+
+      <button class="save-btn" onclick="saveConfig()">💾 設定を保存して表サイトへ即反映</button>
+    </div>
+  </div>
+
+  <script>
+    async function loadConfig() {
+      let c = { amazon_tag: 'snsmonster-22', rakuten_id: '', admax_html: '', clicks: { total: 0, amazon: 0, rakuten: 0 } };
+      try {
+        const res = await fetch('/api/monetize');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.ok && data.config) c = data.config;
+        } else {
+          const res2 = await fetch('monetize_config.json');
+          if (res2.ok) c = Object.assign(c, await res2.json());
+        }
+      } catch (e) {
+        try {
+          const res2 = await fetch('monetize_config.json');
+          if (res2.ok) c = Object.assign(c, await res2.json());
+        } catch (e2) {}
+      }
+      const localSaved = localStorage.getItem('sns_monsters_owner_monetize');
+      if (localSaved) {
+        try { c = Object.assign(c, JSON.parse(localSaved)); } catch (e) {}
+      }
+      document.getElementById('amazonTag').value = c.amazon_tag || '';
+      document.getElementById('rakutenId').value = c.rakuten_id || '';
+      document.getElementById('admaxHtml').value = c.admax_html || '';
+      const cl = c.clicks || {};
+      document.getElementById('amzClicks').textContent = (cl.amazon || 0) + '回';
+      document.getElementById('rakClicks').textContent = (cl.rakuten || 0) + '回';
+      document.getElementById('totalClicks').textContent = (cl.total || 0) + '回';
+      document.getElementById('statusBadge').textContent =
+        c.amazon_tag ? `🟢 収益化稼働中（Amazon: ${c.amazon_tag}）` : '⚙️ ID未設定';
+    }
+
+    async function saveConfig() {
+      const amazon_tag = document.getElementById('amazonTag').value.trim();
+      const rakuten_id = document.getElementById('rakutenId').value.trim();
+      const admax_html = document.getElementById('admaxHtml').value.trim();
+      try {
+        localStorage.setItem('sns_monsters_owner_monetize', JSON.stringify({ amazon_tag, rakuten_id, admax_html }));
+      } catch (e) {}
+      try {
+        const res = await fetch('/api/monetize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amazon_tag, rakuten_id, admax_html })
+        });
+        if (res.ok) {
+          await loadConfig();
+          alert('✅ 保存しました！表のゲーム画面の全リンクに反映されました。');
+          return;
+        }
+      } catch (e) {}
+      await loadConfig();
+      alert('✅ 保存しました！（本番固定URL全体へ永久反映したい時はチャットでIDを教えていただければサーバーへ直接刻印します！）');
+    }
+
+    window.addEventListener('DOMContentLoaded', loadConfig);
+  </script>
+</body>
+</html>
